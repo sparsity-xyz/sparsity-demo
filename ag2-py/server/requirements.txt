@@ -1,0 +1,6 @@
+autogen~=0.7.6
+pyautogen~=0.7.6
+grpcio~=1.70.0
+eth-abi~=5.2.0
+protobuf~=5.29.3
+openai~=1.64.0

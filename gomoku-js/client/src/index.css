@@ -1,0 +1,105 @@
+.game {
+  margin: 0 auto;  /* 新增 */
+  width: fit-content;  /* 新增 */
+}
+
+.game__title {
+  margin: 0 auto;  /* 新增 */
+  width: fit-content;  /* 新增 */
+}
+
+.game__info {
+  margin: 0 auto;
+  width: fit-content;
+  display: flex;           /* 添加 flex 布局 */
+  flex-direction: column;  /* 垂直排列 */
+  gap: 8px;              /* 元素之间的间距 */
+  padding: 10px;          /* 内边距 */
+}
+
+
+.game__field {
+  position: relative;
+  margin: 0 auto;  /* 新增 */
+  width: fit-content;  /* 新增 */
+}
+
+.game__board__bg {
+  height: 360px;
+  width: 360px;
+  display: flex;
+  flex-wrap: wrap;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: -100;
+}
+
+.game__status {
+  text-align: center;
+  font-size: 16px;      /* 或 20px */
+  font-weight: 600;       /* semi-bold */
+  color: #2c3e50;         /* 深色但不是纯黑 */ 
+  /* 可选的额外样式 */
+  letter-spacing: 0.5px;  /* 字间距 */
+  line-height: 1.5;       /* 行高 */ 
+}
+
+.game__button {
+  background-color: #4461F2;    /* 蓝紫色背景 */
+  color: white;                 /* 白色文字 */
+  padding: 12px 24px;          /* 内边距 */
+  border: none;                /* 移除边框 */
+  border-radius: 25px;         /* 圆角 */
+  font-size: 16px;             /* 字体大小 */
+  font-weight: 500;            /* 字重 */
+  cursor: pointer;             /* 鼠标指针 */
+  transition: all 0.2s ease;   /* 平滑过渡效果 */
+  box-shadow: 0 2px 8px rgba(68, 97, 242, 0.3); /* 柔和阴影 */
+}
+
+.game__button__container {
+  display: flex;
+  justify-content: center;  /* 水平居中 */
+  align-items: center;      /* 垂直居中 */  
+}
+
+.block {
+  height: 20px;
+  width: 20px;
+  box-sizing: border-box;
+  border: 0.1px solid black;
+}
+
+.game__board {
+  height: 380px;
+  width: 380px;
+  border: 0.1px solid black;
+  box-sizing: content-box;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.square {
+  height: 20px;
+  width: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.black {
+  height: 15px;
+  width: 15px;
+  border-radius: 50%;
+  background: black;
+}
+
+.white {
+  height: 15px;
+  width: 15px;
+  box-sizing: border-box;
+  border: 0.5px solid black;
+  border-radius: 50%;
+  background: white;
+}
