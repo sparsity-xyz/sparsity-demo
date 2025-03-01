@@ -26,7 +26,7 @@ This repository includes several full-stack demo applications built on the Spars
 - [**Fibonacci JS**](./fibonacci-js/README.md)  
 - [**Fibonacci Python**](./fibonacci-py/README.md)  
 - [**Gomoku JS**](./gomoku-js/README.md)  
-- [**AG2 Python**](./ag2-py/README.md)  
+- [**AG2 Python**](./ag2-py)  
 
 ---  
 
