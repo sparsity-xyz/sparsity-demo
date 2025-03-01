@@ -1,0 +1,19 @@
+{
+  "name": "fibonacci-server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "app": "ts-node src/index.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@grpc/grpc-js": "^1.12.5",
+    "@sparsity/abci": "0.0.3",
+    "ethers": "^6.13.5"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2"
+  }
+}

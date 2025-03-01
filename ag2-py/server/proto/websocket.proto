@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package fleet.proto.message;
+
+option go_package = "./types";
+
+
+enum MessageType {
+  REQUEST = 0;
+  RESPONSE = 1;
+}
+
+message Message {
+  MessageType type = 1;
+  optional string address = 2;
+  int64 timestamp = 3;
+  bytes data = 4;
+  optional bytes signature = 5;
+}
+
+message BatchMessage {
+  repeated Message messages = 1;  // A list of Message instances
+}
+
+message State {
+  string                  type       = 1;
+  repeated StateAttribute attributes = 2;
+}
+
+message StateAttribute {
+  string key   = 1;
+  string value = 2;
+}
+
+message BatchState {
+  repeated State states = 1;
+}

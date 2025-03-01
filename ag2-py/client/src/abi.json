@@ -1,0 +1,213 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "outpostAddress",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [],
+    "name": "_outpostContract",
+    "outputs": [
+      {
+        "internalType": "contract OutpostInterface",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "_sessions",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "endpoint",
+        "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "publicKey",
+        "type": "address"
+      },
+      {
+        "internalType": "enum SessionStatus",
+        "name": "status",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "sessionId",
+        "type": "uint256"
+      },
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "endpoint",
+            "type": "string"
+          },
+          {
+            "internalType": "address",
+            "name": "publicKey",
+            "type": "address"
+          },
+          {
+            "internalType": "enum SessionStatus",
+            "name": "status",
+            "type": "uint8"
+          }
+        ],
+        "internalType": "struct CallbackSession",
+        "name": "session",
+        "type": "tuple"
+      }
+    ],
+    "name": "callbackSession",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "sessionId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isRevert",
+        "type": "bool"
+      },
+      {
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
+      }
+    ],
+    "name": "callbackSettlement",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "sessionId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getSession",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "endpoint",
+            "type": "string"
+          },
+          {
+            "internalType": "address",
+            "name": "publicKey",
+            "type": "address"
+          },
+          {
+            "internalType": "enum SessionStatus",
+            "name": "status",
+            "type": "uint8"
+          }
+        ],
+        "internalType": "struct CallbackSession",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "hashes",
+    "outputs": [
+      {
+        "internalType": "bytes",
+        "name": "",
+        "type": "bytes"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "playerInChat",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "playerSession",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "startChat",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]
