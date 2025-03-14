@@ -39,7 +39,7 @@ docker images --digests
 ## 4. Register Your Contract with the Sparsity Outpost Contract
 
 ```bash
-make sepolia-register
+make base-sepolia-register
 ```
 
 ## 5. Wait for Official Approval from Sparsity
@@ -47,12 +47,12 @@ make sepolia-register
 ## 6. Call Your Contract
 
 ```bash
-make sepolia-fib
+make base-sepolia-fib
 ```
 
 ## 7. Wait for the Result and Check It
 
 ```bash
-make sepolia-fib-result
+make base-sepolia-fib-result
 ```
  
