@@ -10,7 +10,11 @@ The repository consists of two main sections: Contract and ABCI Core. Please ref
 
 ## [ABCI Core](./server/README.md)
 
-# Deployment
+## [Local Bridge and Fleet](../bin/README.md)
+
+## [Test APP](./contract/APPTest.md)
+
+# Devnet Deployment
 
 ## 1. Deploy the App Contract
 

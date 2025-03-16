@@ -75,3 +75,6 @@ artifacts
 cache
 deployments
 typechain-types
+*.db
+.data
+.logs
