@@ -1,32 +1,23 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.27;
 
+import "./util.sol";
+
 interface OutpostInterface {
     function newSession(uint256 sessionId, bytes memory initialData) external;
-    function authIn(address account, uint256 sessionId) external;
-    function authOut(address account, uint256 sessionId) external;
 }
 
-enum SessionStatus {
-    Init,
-    Pending,
-    Running,
-    Finished,
-    Revert
-}
-
-struct CallbackSession {
-    string endpoint;
-    address publicKey;
-    SessionStatus status;
-}
 
 interface APPInterface {
-    function callbackSession(uint256 sessionId, CallbackSession memory session) external;
+    // outpost will call the function when the session create success
+    function callbackSession(uint256 sessionId, CallbackSession memory session) external; 
+    // outpost will call the function when the session end
     function callbackSettlement(uint256 sessionId, bool isRevert, bytes memory data) external;
+    // outpost will call the function to check if the account is join the session
+    function checkAuth(uint256 sessionId, address account) external view returns (bool);
 }
 
-contract APP {
+contract APP is APPInterface {
     struct Room {
         uint256 sessionId;
         address player1;
@@ -64,7 +55,7 @@ contract APP {
             rooms[currentRoomId].player2 == address(0)) {
             rooms[currentRoomId].player2 = msg.sender;
             playerRoom[msg.sender] = currentRoomId;
-            authIn(currentRoomId);
+
             return currentRoomId;
         }
         
@@ -81,9 +72,10 @@ contract APP {
         rooms[currentRoomId] = room;
         playerRoom[msg.sender] = currentRoomId;
         
-        newSession(currentRoomId, abi.encode(room));
-        authIn(currentRoomId);
-        
+        _sessions.push(CallbackSession("", address(0), SessionStatus.Init));
+        // call outpost contract to create a new session
+        _outpostContract.newSession(currentRoomId, abi.encode(room));
+
         return currentRoomId;
     }
 
@@ -114,14 +106,6 @@ contract APP {
     }
 
     /**
-     * @dev Create a new game session
-     */
-    function newSession(uint256 sessionId, bytes memory initalData) internal {
-        _sessions.push(CallbackSession("", address(0), SessionStatus.Init));
-        _outpostContract.newSession(sessionId, initalData);
-    }
-
-    /**
      * @dev Outpost callback function: session creation completed
      */
     function callbackSession(uint256 sessionId, CallbackSession memory session) public {
@@ -135,6 +119,7 @@ contract APP {
      */
     function callbackSettlement(uint256 sessionId, bool isRevert, bytes memory data) public {
         require(msg.sender == address(_outpostContract), "Only outpost contract can call this function");
+        uint256 roomId = sessionId;
 
         if (isRevert) {
             // the sessionId starts from 1
@@ -142,36 +127,21 @@ contract APP {
         } else {
             // the sessionId starts from 1
             _sessions[sessionId-1].status = SessionStatus.Finished;
-            processSettlementData(sessionId, data);
+
+            (address black, address white, address winner) = abi.decode(data, (address, address, address));
+            rooms[roomId].black = black;
+            rooms[roomId].white = white;
+            rooms[roomId].winner = winner;
+            rooms[roomId].isActive = false;
         }
-    }
-
-    /**
-     * @dev Player authentication to join the game
-     */
-    function authIn(uint256 sessionId) internal {
-        _outpostContract.authIn(msg.sender, sessionId);
-    }
-
-    /**
-     * @dev Player authentication to leave the game
-     */
-    function authOut(uint256 sessionId) internal {
-        _outpostContract.authOut(msg.sender, sessionId);
-    }
-
-    /**
-     * @dev Process settlement data
-     */
-    function processSettlementData(uint256 sessionId, bytes memory data) internal virtual {
-        (address black, address white, address winner) = abi.decode(data, (address, address, address));
-        uint256 roomId = sessionId;
-        rooms[roomId].black = black;
-        rooms[roomId].white = white;
-        rooms[roomId].winner = winner;
-        rooms[roomId].isActive = false;
         
-        playerRoom[black] = 0;
-        playerRoom[white] = 0;
+        // release player
+        playerRoom[rooms[roomId].black] = 0;
+        playerRoom[rooms[roomId].white] = 0;
+    }
+
+    // check if the account is in the room
+    function checkAuth(uint256 sessionId, address account) public view returns (bool) {
+        return rooms[sessionId].player1 == account || rooms[sessionId].player2 == account;
     }
 }

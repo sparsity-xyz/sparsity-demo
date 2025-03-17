@@ -1,6 +1,6 @@
 from eth_abi.abi import decode, encode
 
-from base_app import BaseApplication, HexString
+from py_abci.base_app import BaseApplication, HexString
 
 
 class Fibonacci(BaseApplication):
@@ -20,7 +20,6 @@ class Fibonacci(BaseApplication):
                 print(f"Error decoding initial data: {e}")
                 self.result = 0
         else:
-            # it can be empty string if no initial data sent by contract
             self.result = 1
             print("no initial data")
 
@@ -44,8 +43,5 @@ class Fibonacci(BaseApplication):
 
 
 if __name__ == "__main__":
-    from src.service import ABCIService
-    import os
-
-    os.environ['INIT_DATA'] = '0x000000000000000000000000000000000000000000000000000000000000001E' # 30
+    from py_abci.service import ABCIService
     ABCIService(Fibonacci()).start()

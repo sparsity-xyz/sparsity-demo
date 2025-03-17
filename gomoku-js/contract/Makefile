@@ -3,32 +3,49 @@ ifneq (,$(wildcard .env))
     export
 endif
 
+OS := $(shell uname -s)
+ifeq ($(OS),Linux)
+    KILL_ANVIL = -pkill -f anvil
+else
+    KILL_ANVIL = pkill -f anvil || true
+endif
+
+PID_FILE := process.pid
+
+.PHONY: node deploy test-proxy send-settle-eth new-session authin authout session-result fib-result register-app approve-app approver upgrade-outpost er clear
+
 node:
-	pkill -f anvil || true
-	nohup anvil > anvil.log 2>&1 &
-	$(MAKE) deploy
-	tail -f anvil.log
+	$(KILL_ANVIL)
+	nohup anvil --block-time 1 > nohup.log 2>&1 &
+	${MAKE} deploy
+	${MAKE} send-settle-eth
+	${MAKE} register-app
+	${MAKE} approve-app
+	${MAKE} set-manager-bridge
+	${MAKE} set-outpost-bridge
+	tail -f nohup.log
 
 deploy:
-	rm -rf ignition/deployments
+	npx hardhat ignition deploy ignition/modules/OutpostProxy.ts --network localhost
+	npx hardhat ignition deploy ignition/modules/ManagerProxy.ts --network localhost
 	npx hardhat ignition deploy ignition/modules/APP.ts --network localhost
-	npx hardhat ignition deploy ignition/modules/MockOutpost.ts --network localhost
 
-join:
-	cast send ${APP_CONTRACT} --private-key ${DEPLOYER_PRIVATE_KEY} "joinOrCreateRoom()"
+send-settle-eth:
+	cast send ${FLEET_SETTLER_ADDRESS} --value 10ether --private-key ${PROXY_ADMIN_PRIVATE_KEY}
+	cast balance ${FLEET_SETTLER_ADDRESS}
 
-join2:
-	cast send ${APP_CONTRACT} --private-key ${DEPLOYER_PRIVATE_KEY} "joinOrCreateRoom()"
 
-session:
-	@RAW_DATA=$$(cast call ${APP_CONTRACT} "getSession()" ${SID}) && \
-    cast abi-decode "getSession()((string,address,uint8))" "$$RAW_DATA"
+## app
+register-app:
+	cast send ${OUTPOST_PROXY_CONTRACT} --private-key ${PROXY_ADMIN_PRIVATE_KEY} "registerAPP(address,string,string)" ${APP_CONTRACT} ${APP_NAME} ${DOCKER_URI} ${DOCKER_HASH}
 
-callback-session:
-	cast send ${OUTPOST_PROXY_CONTRACT} --private-key ${DEPLOYER_PRIVATE_KEY} "callbackSession(address,uint256,(string,address,uint8))" ${APP_CONTRACT} ${SID} '("http://127.0.0.1:9981", ${APP_CONTRACT}, 2)'
 
-callback-settle:
-	cast send ${OUTPOST_PROXY_CONTRACT} --private-key ${DEPLOYER_PRIVATE_KEY} "settle(address,uint256,bool,bytes)" ${APP_CONTRACT} ${SID} false ${RESULT}
+## sparsity
+approve-app:
+	cast send ${OUTPOST_PROXY_CONTRACT} --private-key ${CONTRACT_OWNER_PRIVATE_KEY} "approveAPP(address)" ${APP_CONTRACT}
 
-room:
-	cast call ${APP_CONTRACT} "getRoom(uint256)" 1
+set-outpost-bridge:
+	cast send ${OUTPOST_PROXY_CONTRACT} --private-key ${CONTRACT_OWNER_PRIVATE_KEY} "setBridge(address,bool)" 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC true
+
+set-manager-bridge:
+	cast send ${MANAGER_PROXY_CONTRACT} --private-key ${CONTRACT_OWNER_PRIVATE_KEY} "setBridge(address,bool)" 0x90F79bf6EB2c4f870365E785982E1f101E93b906 true
