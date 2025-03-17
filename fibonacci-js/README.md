@@ -1,62 +1,111 @@
-# Fibonacci
+# Fibonacci  
 
-This demo showcases interaction with the Sparsity Platform. The application computes the Fibonacci function. Users can submit requests via the App smart contract, which forwards them to the Sparsity platform. The platform computes the result using the App ABCI core and settles the request back to the App smart contract.
+This demo showcases interaction with the Sparsity Platform. The application computes the Fibonacci sequence. Users submit requests via the App smart contract, which forwards them to the Sparsity platform automatically. The platform processes the request using the App ABCI core and returns the result to the App smart contract.  
 
-# Running in Dev Box
+## Running the App End-to-End in a Local Dev Environment  
 
-The repository consists of two main sections: Contract and ABCI Core. Please refer to the setup details below.
+### Prerequisites  
+- OS: macOS or Linux (Windows users should use WSL)  
+- [Foundry](https://book.getfoundry.sh/) installed  
+- npm or yarn installed  
 
-## [Contract](./contract/README.md)
+### 1. Build the Docker Image  
 
-## [ABCI Core](./server/README.md)
+```bash
+docker build -t abci-fib:latest .
+```  
 
-## [Local Bridge and Fleet](../bin/README.md)
+### 2. Start the Chain Node and Deploy the Smart Contract  
 
-## [Test APP](./contract/APPTest.md)
+```bash
+cd contract
+npm install
+cp .env.example .env
+make node
+```  
 
-# Devnet Deployment
+### 3. Start the Bridge  
 
-## 1. Deploy the App Contract
+```bash
+docker pull sparsityxyz/bridge
+docker run sparsityxyz/bridge
+```  
+
+### 4. Start the Fleet  
+
+```bash
+docker pull sparsityxyz/fleet
+docker run sparsityxyz/fleet
+```  
+
+### 5. Interact with the Smart Contract  
+
+To compute Fibonacci for a given number (e.g., `num = 10`):  
+
+```bash
+make request-fib NUM=10
+```  
+
+### 6. Check the Result  
+
+Wait for the bridge and fleet to settle the result, then retrieve it:  
+
+```bash
+make fib-result NUM=10
+```  
+
+Expected output:  
+
+```bash
+55
+```  
+
+---
+
+# Deployment  
+
+## 1. Deploy the App Contract  
 
 ```bash
 # Navigate to the ./contract directory
 cp .env.example.sepolia .env
 # Fill in your deployer private key in the .env file
 make sepolia-deploy
-# Add the contract address to the .env file
-```
+# Add the deployed contract address to the .env file
+```  
 
-## 2. Publish the App to a Public Docker Registry
+## 2. Publish the App to a Public Docker Registry  
 
 ```bash
 docker build -t yourusername/your-image-name:tag .
 docker push yourusername/your-image-name:tag
-```
+```  
 
-## 3. Update `dockerURI` and `dockerHash` in the .env File
+## 3. Update `dockerURI` and `dockerHash` in the `.env` File  
+
+Retrieve the image digest:  
 
 ```bash
-# Retrieve the image digest
 docker images --digests
-```
+```  
 
-## 4. Register Your Contract with the Sparsity Outpost Contract
+## 4. Register Your Contract with the Sparsity Outpost Contract  
 
 ```bash
 make base-sepolia-register
-```
+```  
 
-## 5. Wait for Official Approval from Sparsity
+## 5. Wait for Official Approval from Sparsity  
 
-## 6. Call Your Contract
+## 6. Call Your Contract  
 
 ```bash
 make base-sepolia-fib
-```
+```  
 
-## 7. Wait for the Result and Check It
+## 7. Wait for the Result and Check It  
 
 ```bash
 make base-sepolia-fib-result
-```
+```  
  
