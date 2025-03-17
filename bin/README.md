@@ -2,44 +2,75 @@
 ## bridge
 ### pull image
 ```
-docker pull sparsityxyz/bridge
+docker pull sparsityxyz/bridge:latest
 ```
 
 ### run bridge
 ```
 # macos
-docker run --rm -ti -e HOST=host.docker.internal sparsityxyz/bridge
+docker run --rm -ti -e HOST=host.docker.internal sparsityxyz/bridge:latest
 
 # linux
-docker run --rm -ti -e HOST=172.17.0.1 sparsityxyz/bridge
+docker run --rm -ti -e HOST=172.17.0.1 sparsityxyz/bridge:latest
 ```
 
 ## fleet
 ### pull image
 ```
-docker pull sparsityxyz/fleet
+docker pull sparsityxyz/fleet:latest
 ```
 
 ### init fleet
 ```
-docker run -ti --rm -v ./.data:/root/.fleet -v /var/run/docker.sock:/var/run/docker.sock sparsityxyz/fleet fleet init --local
+# macos
+docker run -ti --rm \
+    -v ./.data:/root/.fleet \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    sparsityxyz/fleet:latest \
+    fleet init --local
+
+# linux
+docker run -ti --rm \
+    -v ./.data:/root/.fleet \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    --add-host=host.docker.internal:172.17.0.1 \
+    sparsityxyz/fleet:latest \
+    fleet init --local
 ```
 
 ### register to contract
 remember everytime you restart the node, you should register again
 ```
 # macos
-docker run -ti --rm -v ./.data:/root/.fleet -v /var/run/docker.sock:/var/run/docker.sock sparsityxyz/fleet fleet register --ip 127.0.0.1
+docker run -ti --rm \
+    -v ./.data:/root/.fleet \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    sparsityxyz/fleet:latest \
+    fleet register --ip 127.0.0.1
 
 # linux
-TODO
+docker run -ti --rm \
+    -v ./.data:/root/.fleet \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    --add-host=host.docker.internal:172.17.0.1 \
+    sparsityxyz/fleet:latest \
+    fleet register --ip 127.0.0.1
 ```
 
 ### start fleet
 ```
 # macos
-docker run -ti --rm -v ./.data:/root/.fleet -v /var/run/docker.sock:/var/run/docker.sock sparsityxyz/fleet fleet run
+docker run -ti --rm \
+    -v ./.data:/root/.fleet \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+     sparsityxyz/fleet:latest \
+    fleet fleet run
 
 # linux
-TODO
+docker run -ti --rm \
+    -v ./.data:/root/.fleet \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    --add-host=host.docker.internal:172.17.0.1 \
+    sparsityxyz/fleet:latest \
+    fleet fleet run
 ```
