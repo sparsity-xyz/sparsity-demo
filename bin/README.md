@@ -29,7 +29,7 @@ docker run -ti --rm -v ./.data:/root/.fleet -v /var/run/docker.sock:/var/run/doc
 remember everytime you restart the node, you should register again
 ```
 # macos
-docker run -ti --rm -v ./.data:/root/.fleet -v /var/run/docker.sock:/var/run/docker.sock sparsityxyz/fleet fleet init --local
+docker run -ti --rm -v ./.data:/root/.fleet -v /var/run/docker.sock:/var/run/docker.sock sparsityxyz/fleet fleet register --ip 127.0.0.1
 
 # linux
 TODO
