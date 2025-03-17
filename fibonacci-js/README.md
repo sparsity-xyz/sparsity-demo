@@ -1,7 +1,7 @@
 
 # Fibonacci  
 
-This demo showcases interaction with the **Sparsity Platform**. The application computes the Fibonacci sequence, allowing users to submit requests via a smart contract. The contract forwards the requests to the Sparsity platform, which processes them using the **App ABCI core** and returns the results back to the smart contract.  
+This demo showcases interaction with the **Sparsity Platform**. The application computes the Fibonacci sequence, allowing users to submit requests via a smart contract. The contract forwards these requests to the **Sparsity platform**, which processes them using the **App ABCI core** and returns the results back to the smart contract.  
 
 ---
 
@@ -14,6 +14,7 @@ This demo showcases interaction with the **Sparsity Platform**. The application 
   - `npm` or `yarn` installed  
 
 ### 1. Build the Docker Image  
+The Docker image contains the ABCI core, encapsulating all computation and execution logic.  
 
 ```bash
 cd server
@@ -21,6 +22,7 @@ docker build -t abci-fib:latest .
 ```  
 
 ### 2. Start the Chain Node and Deploy the Smart Contract  
+Simulates an EVM chain locally and deploys the smart contract.  
 
 ```bash
 cd contract
@@ -29,9 +31,10 @@ cp .env.example .env
 make node
 ```  
 
-Ensure that blocks start building before proceeding.  
+Wait until blocks start building before proceeding. Check the terminal output to ensure blocks are being produced.
 
 ### 3. Start the Bridge  
+The Bridge service connects the host EVM chain with the Sparsity platform.  
 
 ```bash
 docker pull sparsityxyz/bridge:latest
@@ -44,6 +47,7 @@ docker run --rm -ti -e HOST=172.17.0.1 sparsityxyz/bridge:latest
 ```  
 
 ### 4. Start the Fleet  
+The Fleet service is responsible for triggering the Sparsity execution session upon receiving signals from the host chain via the Bridge service.  
 
 #### Pull the Fleet Image  
 
@@ -103,6 +107,7 @@ docker run -ti --rm \
 ```  
 
 ### 5. Interact with the Smart Contract  
+Now that everything is running locally, you can perform end-to-end testing by interacting with the smart contract.  
 
 To compute Fibonacci for a given number (e.g., `10`):  
 
@@ -110,7 +115,7 @@ To compute Fibonacci for a given number (e.g., `10`):
 make request-fib NUM=10
 ```  
 
-Wait for the **bridge** and **fleet** to process the request, then retrieve the result:  
+Wait for the **Bridge** and **Fleet** to process the request, then retrieve the result:  
 
 ```bash
 make fib-result NUM=10
