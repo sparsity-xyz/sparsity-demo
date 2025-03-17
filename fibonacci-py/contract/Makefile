@@ -19,6 +19,7 @@ node:
 	nohup anvil --block-time 1 > nohup.log 2>&1 &
 	sleep 1
 	${MAKE} deploy
+	${MAKE} abi
 	${MAKE} test-proxy
 	${MAKE} send-settle-eth
 	${MAKE} register-app
@@ -32,9 +33,11 @@ deploy:
 	npx hardhat ignition deploy ignition/modules/OutpostProxy.ts --network localhost
 	npx hardhat ignition deploy ignition/modules/ManagerProxy.ts --network localhost
 	npx hardhat ignition deploy ignition/modules/APP.ts --network localhost
+
+abi:
 	# after deployment, move the abi file to the bridge
-	cp ignition/deployments/chain-31337/artifacts/OutpostProxyModule#Outpost.json ../bridge/src/abi/Outpost.json
-	cp ignition/deployments/chain-31337/artifacts/ManagerProxyModule#Manager.json ../bridge/src/abi/Manager.json
+	cp ignition/deployments/chain-31337/artifacts/OutpostProxyModule#Outpost.json ../../fleet/fleet/contract/Outpost.json
+	cp ignition/deployments/chain-31337/artifacts/ManagerProxyModule#Manager.json ../../fleet/fleet/contract/Manager.json
 
 test-proxy:
 	npx hardhat test test/Proxy.ts --network localhost
@@ -50,12 +53,6 @@ send-settle-eth:
 ## app
 new-session:
 	cast send ${APP_CONTRACT} --private-key ${PROXY_ADMIN_PRIVATE_KEY} "requestFib(uint256)" 11
-
-authin:
-	cast send ${APP_CONTRACT} --private-key ${PROXY_ADMIN_PRIVATE_KEY} "authIn(uint256)" 0
-
-authout:
-	cast send ${APP_CONTRACT} --private-key ${PROXY_ADMIN_PRIVATE_KEY} "authOut(uint256)" 0
 
 session-result:
 	@cast abi-decode "_sessions(uint256)(string,address,uint)" $(shell cast call ${APP_CONTRACT} --private-key ${CONTRACT_OWNER_PRIVATE_KEY} "_sessions(uint256)" 0)
