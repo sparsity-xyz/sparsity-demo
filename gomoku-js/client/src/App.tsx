@@ -10,7 +10,7 @@ import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react'
 import { BrowserProvider, Contract } from 'ethers'
 import ABI from './abi.json'
 
-const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
+const contractAddress = import.meta.env.VITE_APP_ADDRESS
 const NULL_ADDRESS = '0x0000000000000000000000000000000000000000'
 var contract: any = null
 var ethersProvider: BrowserProvider
@@ -228,7 +228,7 @@ const App: React.FC = () => {
 
       console.log(message, signature)
 
-      const response = await fetch(endpoint + '/login', {
+      const response = await fetch("http://"+endpoint + '/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -263,7 +263,7 @@ const App: React.FC = () => {
     const addr = address as string
 
     const connectWebSocket = () => {
-      newSocket = new WebSocket(`${endpoint}/ws`)
+      newSocket = new WebSocket(`ws://${endpoint}/ws`)
 
       newSocket.onopen = () => {
         console.log('WebSocket connect successed')
