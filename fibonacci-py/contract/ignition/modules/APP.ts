@@ -3,7 +3,7 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 
-const appModule = buildModule("appModule", (m) => {
+const appModule = buildModule("APPModule", (m) => {
     const outpostAddress = process.env.OUTPOST_PROXY_CONTRACT || "";
     const app = m.contract("APP", [outpostAddress]);
 

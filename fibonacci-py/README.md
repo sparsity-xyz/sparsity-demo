@@ -1,58 +1,177 @@
-# Fibonacci
 
-This demo showcases interaction with the Sparsity Platform. The application computes the Fibonacci function. Users can submit requests via the App smart contract, which forwards them to the Sparsity platform. The platform computes the result using the App ABCI core and settles the request back to the App smart contract.
+# Fibonacci  
 
-# Running in Dev Box
+This demo showcases interaction with the **Sparsity Platform**. The application computes the Fibonacci sequence, allowing users to submit requests via a smart contract. The contract forwards these requests to the **Sparsity platform**, which processes them using the **App ABCI core** and returns the results back to the smart contract.  
 
-The repository consists of two main sections: Contract and ABCI Core. Please refer to the setup details below.
+---
 
-## [Contract](./contract/README.md)
+## Running the App Locally  
 
-## [ABCI Core](./server/README.md)
+### Prerequisites  
+- **OS:** macOS or Linux (Windows users should use WSL)  
+- **Dependencies:**  
+  - [Foundry](https://book.getfoundry.sh/) installed  
+  - `npm` or `yarn` installed  
 
-# Deployment
-
-## 1. Deploy the App Contract
+### 1. Build the Docker Image  
+The Docker image contains the ABCI core, encapsulating all computation and execution logic.  
 
 ```bash
-# Navigate to the ./contract directory
+cd server
+docker build -t abci-fib-py:latest .
+```  
+
+### 2. Start the Chain Node and Deploy the Smart Contract  
+Simulates an EVM chain locally and deploys the smart contract.  
+
+```bash
+cd contract
+npm install
+cp .env.example .env
+make node
+```  
+
+Wait until blocks start building before proceeding. Check the terminal output to ensure blocks are being produced.
+
+### 3. Start the Bridge  
+The Bridge service connects the host EVM chain with the Sparsity platform.  
+
+```bash
+docker pull sparsityxyz/bridge:latest
+
+# macOS
+docker run --rm -ti -e HOST=host.docker.internal sparsityxyz/bridge:latest
+
+# Linux
+docker run --rm -ti -e HOST=172.17.0.1 sparsityxyz/bridge:latest
+```  
+
+### 4. Start the Fleet  
+The Fleet service is responsible for triggering the Sparsity execution session upon receiving signals from the host chain via the Bridge service.  
+
+#### Pull the Fleet Image  
+
+```bash
+docker pull sparsityxyz/fleet:latest
+```  
+
+#### Initialize Fleet  
+
+```bash
+# macOS
+docker run -ti --rm \
+    -v ./.data:/root/.fleet \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    sparsityxyz/fleet:latest fleet init --local
+
+# Linux
+docker run -ti --rm \
+    -v ./.data:/root/.fleet \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    --add-host=host.docker.internal:172.17.0.1 \
+    sparsityxyz/fleet:latest fleet init --local
+```  
+
+#### Register Fleet  
+
+```bash
+# macOS
+docker run -ti --rm \
+    -v ./.data:/root/.fleet \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    sparsityxyz/fleet:latest fleet register --ip 127.0.0.1
+
+# Linux
+docker run -ti --rm \
+    -v ./.data:/root/.fleet \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    --add-host=host.docker.internal:172.17.0.1 \
+    sparsityxyz/fleet:latest fleet register --ip 127.0.0.1
+```  
+
+#### Run Fleet  
+
+```bash
+# macOS
+docker run -ti --rm \
+    -v ./.data:/root/.fleet \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    sparsityxyz/fleet:latest fleet run
+
+# Linux
+docker run -ti --rm \
+    -v ./.data:/root/.fleet \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    --add-host=host.docker.internal:172.17.0.1 \
+    sparsityxyz/fleet:latest fleet run
+```  
+
+### 5. Interact with the Smart Contract  
+Now that everything is running locally, you can perform end-to-end testing by interacting with the smart contract.  
+
+To compute Fibonacci for a given number (e.g., `10`):  
+
+```bash
+make request-fib NUM=10
+```  
+
+Wait for the **Bridge** and **Fleet** to process the request, then retrieve the result:  
+
+```bash
+make fib-result NUM=10
+```  
+
+**Expected output:**  
+
+```bash
+55
+```  
+
+---
+
+# Deployment to devnet
+
+### 1. Deploy the App Contract  
+
+```bash
+cd contract
 cp .env.example.sepolia .env
 # Fill in your deployer private key in the .env file
-make sepolia-deploy
-# Add the contract address to the .env file
-```
+make -f Makefile_sepolia deploy
+# Add the deployed contract address to the .env file
+```  
 
-## 2. Publish the App to a Public Docker Registry
+### 2. Publish the App to a Public Docker Registry  
 
 ```bash
 docker build -t yourusername/your-image-name:tag .
 docker push yourusername/your-image-name:tag
-```
+```  
 
-## 3. Update `dockerURI` and `dockerHash` in the .env File
+### 3. Update `dockerURI` and `dockerHash` in the `.env` File  
+
+Retrieve the image digest:  
 
 ```bash
-# Retrieve the image digest
 docker images --digests
-```
+```  
 
-## 4. Register Your Contract with the Sparsity Outpost Contract
-
-```bash
-make base-sepolia-register
-```
-
-## 5. Wait for Official Approval from Sparsity
-
-## 6. Call Your Contract
+### 4. Register Your Contract with the Sparsity Outpost Contract  
 
 ```bash
-make base-sepolia-fib
-```
+make -f Makefile_sepolia register-app
+```  
 
-## 7. Wait for the Result and Check It
+### 5. Wait for Official Approval from Sparsity  
+
+### 6. Call Your Contract  
 
 ```bash
-make base-sepolia-fib-result
-```
- 
+make -f Makefile_sepolia request-fib NUM=10
+```  
+
+### 7. Retrieve and Verify the Result  
+
+```bash
+make -f Makefile_sepolia fib-result NUM=10
+```  
