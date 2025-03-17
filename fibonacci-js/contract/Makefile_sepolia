@@ -13,8 +13,8 @@ register-app:
 
 request-fib:
 	# request fib number
-	cast send ${APP_CONTRACT} --private-key ${DEPLOYER_PRIVATE_KEY} --rpc-url ${BASE_SEPOLIA_RPC} "requestFib(uint256)" 8
+	cast send ${APP_CONTRACT} --private-key ${DEPLOYER_PRIVATE_KEY} --rpc-url ${BASE_SEPOLIA_RPC} "requestFib(uint256)" ${NUM}
 
 fib-result:
 	# check result
-	cast call ${APP_CONTRACT} --rpc-url ${BASE_SEPOLIA_RPC} "getFibonacci(uint256)" 8
+	cast call ${APP_CONTRACT} --rpc-url ${BASE_SEPOLIA_RPC} "getFibonacci(uint256)" ${NUM}

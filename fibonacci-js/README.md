@@ -129,7 +129,7 @@ make fib-result NUM=10
 
 ---
 
-# Deployment  
+# Deployment to devnet
 
 ### 1. Deploy the App Contract  
 
@@ -137,7 +137,7 @@ make fib-result NUM=10
 cd contract
 cp .env.example.sepolia .env
 # Fill in your deployer private key in the .env file
-make sepolia-deploy
+make -f Makefile_sepolia deploy
 # Add the deployed contract address to the .env file
 ```  
 
@@ -159,7 +159,7 @@ docker images --digests
 ### 4. Register Your Contract with the Sparsity Outpost Contract  
 
 ```bash
-make base-sepolia-register
+make -f Makefile_sepolia register-app
 ```  
 
 ### 5. Wait for Official Approval from Sparsity  
@@ -167,12 +167,11 @@ make base-sepolia-register
 ### 6. Call Your Contract  
 
 ```bash
-make base-sepolia-fib
+make -f Makefile_sepolia request-fib NUM=10
 ```  
 
 ### 7. Retrieve and Verify the Result  
 
 ```bash
-make base-sepolia-fib-result
+make -f Makefile_sepolia fib-result NUM=10
 ```  
- 
