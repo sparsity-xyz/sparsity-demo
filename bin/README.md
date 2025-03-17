@@ -1,42 +1,45 @@
 
 ## bridge
-### OS
+### pull image
 ```
-// for macos
-mv bridge-arm64 bridge
-
-// for linux
-mv bridge-amd64 bridge
+docker pull sparsityxyz/bridge
 ```
 
 ### run bridge
 ```
-./bridge --local
+# macos
+docker run --rm -ti -e HOST=host.docker.internal sparsityxyz/bridge
+
+# linux
+docker run --rm -ti -e HOST=172.17.0.1 sparsityxyz/bridge
 ```
 
 ## fleet
-### OS
+### pull image
 ```
-// for macos
-mv fleet-arm64 bridge
-
-// for linux
-mv fleet-amd64 bridge
+docker pull sparsityxyz/fleet
 ```
 
 ### init fleet
 ```
-cp .env.example .env
-./fleet init --home .data --local
+docker run -ti --rm -v ./.data:/root/.fleet -v /var/run/docker.sock:/var/run/docker.sock sparsityxyz/fleet fleet init --local
 ```
 
 ### register to contract
 remember everytime you restart the node, you should register again
 ```
-./fleet register --home .data --ip 127.0.0.1
+# macos
+docker run -ti --rm -v ./.data:/root/.fleet -v /var/run/docker.sock:/var/run/docker.sock sparsityxyz/fleet fleet init --local
+
+# linux
+TODO
 ```
 
 ### start fleet
 ```
-./fleet run --home .data
+# macos
+docker run -ti --rm -v ./.data:/root/.fleet -v /var/run/docker.sock:/var/run/docker.sock sparsityxyz/fleet fleet run
+
+# linux
+TODO
 ```
