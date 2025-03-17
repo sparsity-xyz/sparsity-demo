@@ -129,7 +129,6 @@ Follow these steps to set up and run the app locally.
    e) You can now play the game locally at [http://localhost:5173](http://localhost:5173)!
 
 ### 6. Interact with the Client  
-   TODO: manually create session
    a) **Test Addresses**
    ```
    Address 1: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
@@ -154,5 +153,5 @@ Follow these steps to set up and run the app locally.
    e) **Play the Game**
    - Play between two browser sessions.
    - Wait for the game to be settled on-chain.
-   - Check on-chain results in the smart contract. (TODO)
+   - Check on-chain results in the smart contract. 
 
