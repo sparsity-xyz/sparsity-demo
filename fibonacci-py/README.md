@@ -145,7 +145,8 @@ make -f Makefile_sepolia deploy
 ### 2. Publish the App to a Public Docker Registry  
 
 ```bash
-docker build -t yourusername/your-image-name:tag .
+docker build --platform linux/amd64 -t yourusername/your-image-name:tag .
+docker login
 docker push yourusername/your-image-name:tag
 ```  
 
@@ -154,7 +155,7 @@ docker push yourusername/your-image-name:tag
 Retrieve the image digest:  
 
 ```bash
-docker images --digests
+docker images --digests | grep yourusername/your-image-name
 ```  
 
 ### 4. Register Your Contract with the Sparsity Outpost Contract  

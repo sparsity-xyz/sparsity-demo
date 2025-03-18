@@ -28,6 +28,23 @@ This repository includes several full-stack demo applications built on the Spars
 - [**Gomoku JS**](./gomoku-js/README.md)  
 - [**AG2 Python**](./ag2-py)  
 
+## Development Contribution  
+### Setup & Commit Guidelines  
+Before committing, always install dependencies in the **root directory**:  
+
+```sh
+npm i
+```  
+
+We enforce structured commit messages using **Commitlint**, **Husky**, and **Commitizen**.  
+Use the following command for commits:  
+
+```sh
+git cz
+```  
+
+This ensures consistency and adherence to our commit conventions.
+
 ---  
 
 For more details, refer to the official [Sparsity documentation](https://sparsity.gitbook.io/sparsity-platform).  

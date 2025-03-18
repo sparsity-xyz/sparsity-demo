@@ -1,6 +1,7 @@
 [
   {
     "model": "gpt-4o-mini",
-    "api_key": "<API_KEY_HERE>"
+    "api_key": "<API_KEY_HERE>",
+    "base_url": ""
   }
 ]
