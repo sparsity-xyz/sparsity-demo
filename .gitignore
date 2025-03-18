@@ -78,6 +78,9 @@ typechain-types
 *.db
 .data
 .logs
+.idea
+.venv
+.DS_Store
 
 ## conventional commit related files
 node_modules/  

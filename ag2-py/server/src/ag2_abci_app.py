@@ -1,17 +1,21 @@
-from src.base_app import BaseApplication
-from src.service import ABCIService
-from autogen import ConversableAgent, config_list_from_json
 import json
 import logging
 import os
-from cometbft.abci.v1 import types_pb2
-from typing import List
 import hashlib
-from websocket_pb2 import Message, BatchMessage
+from typing import List
+
+from autogen import ConversableAgent, config_list_from_json
+
+from py_abci.base_app import BaseApplication
+from py_abci.service import ABCIService
+from py_abci.websocket_pb2 import Message, BatchMessage
+from cometbft.abci.v1 import types_pb2
+
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 
 class AG2(BaseApplication):
     def __init__(self):
@@ -41,7 +45,7 @@ class AG2(BaseApplication):
                 system_message="You are a fact-checking assistant. Verify information and correct inaccuracies.",
                 llm_config=llm_config
             )
-            
+
             logger.info("Agents setup successfully")
         except Exception as e:
             logger.error(f"Failed to setup agents: {e}")
@@ -56,15 +60,15 @@ class AG2(BaseApplication):
     def step(self, messages) -> List[types_pb2.Event]:
         events = []
         logger.info(f"ABCI step called with message of size {len(messages)} bytes")
-        
+
         try:
             # Decode the message
-            
+
             # Try to parse as a BatchMessage first
             try:
                 batch_message = BatchMessage()
                 batch_message.ParseFromString(messages)
-                
+
                 # Process each message in the batch
                 for message in batch_message.messages:
                     # Process the individual message
@@ -73,29 +77,29 @@ class AG2(BaseApplication):
                         events.extend(message_events)
             except Exception as batch_error:
                 logger.info(f"Not a BatchMessage, trying as single Message: {str(batch_error)}")
-                
+
                 # Try to parse as a single Message
                 try:
                     message = Message()
                     message.ParseFromString(messages)
-                    
+
                     # Process the individual message
                     message_events = self._process_message(message)
                     if message_events:
                         events.extend(message_events)
                 except Exception as message_error:
                     logger.error(f"Failed to parse as Message: {str(message_error)}")
-                    
+
                     # Try as a JSON string
                     try:
                         content = json.loads(messages.decode('utf-8'))
                         logger.info(f"Decoded as JSON: {json.dumps(content, indent=2)}")
-                        
+
                         # Process as a direct JSON message - handle both 'CHAT' and 'new' request types
                         if 'requestType' in content and content['requestType'] in ['CHAT', 'new']:
                             message_text = content.get('message', '')
                             logger.info(f"Chat message: '{message_text}'")
-                            
+
                             # Process the chat message
                             chat_events = self._process_chat_message(message_text)
                             if chat_events:
@@ -104,14 +108,14 @@ class AG2(BaseApplication):
                         logger.error(f"Failed to parse as JSON: {str(json_error)}")
         except Exception as e:
             logger.error(f"Error in step: {str(e)}")
-        
+
         logger.info(f"Returning {len(events)} events")
         return events
 
     def _process_message(self, message) -> List[types_pb2.Event]:
         """Process a single Message object"""
         events = []
-        
+
         try:
             # Extract the data from the message
             if message.data:
@@ -119,12 +123,12 @@ class AG2(BaseApplication):
                     # Try to decode as JSON
                     content = json.loads(message.data.decode('utf-8'))
                     logger.info(f"Decoded message data: {json.dumps(content, indent=2)}")
-                    
+
                     # Check if it's a chat message - handle both 'CHAT' and 'new' request types
                     if content.get('requestType') in ['CHAT', 'new']:
                         message_text = content.get('message', '')
                         logger.info(f"Chat message: '{message_text}'")
-                        
+
                         # Process the chat message
                         chat_events = self._process_chat_message(message_text)
                         if chat_events:
@@ -133,15 +137,15 @@ class AG2(BaseApplication):
                     logger.error(f"Error decoding message data: {str(e)}")
         except Exception as e:
             logger.error(f"Error processing message: {str(e)}")
-        
+
         return events
 
     def _process_chat_message(self, message_text: str) -> List[types_pb2.Event]:
         """Process a chat message and return events"""
         events = []
-        
+
         logger.info(f"Processing chat message: '{message_text}'")
-        
+
         # Check if user wants to exit
         if message_text.lower() == "exit":
             logger.info("Exit command received, ending session")
@@ -159,15 +163,15 @@ class AG2(BaseApplication):
             )
             logger.info(f"Created exit event: {exit_event}")
             events.append(exit_event)
-            
+
             logger.info(f"Session ended, returning {len(events)} events")
             return events
-        
+
         # Process chat with AutoGen agents
         logger.info("Processing with AutoGen agents")
         response = self.process_chat(message_text)
         logger.info(f"AutoGen response: {json.dumps(response, indent=2)}")
-        
+
         # Create event with chat response
         chat_event = types_pb2.Event(
             type='chat_response',
@@ -182,14 +186,14 @@ class AG2(BaseApplication):
         logger.info(f"Created chat_response event: {chat_event}")
         events.append(chat_event)
         logger.info("Created chat_response event")
-        
+
         # Add to chat history
         self.chat_history.append({
             'message': message_text,
             'response': response
         })
         logger.info("Added to chat history")
-        
+
         logger.info(f"Returning {len(events)} events from _process_chat_message")
         return events
 
@@ -206,7 +210,7 @@ class AG2(BaseApplication):
         """Format the chat result into a structured response"""
         if not chat_result or not hasattr(chat_result, 'chat_history'):
             return {"messages": []}
-        
+
         formatted_messages = []
         for msg in chat_result.chat_history:
             formatted_messages.append({
@@ -214,17 +218,17 @@ class AG2(BaseApplication):
                 "content": msg.get('content', ''),
                 "role": "assistant"
             })
-        
+
         return {"messages": formatted_messages}
 
     def get_result_data(self):
         """Return hash of chat history for blockchain storage"""
         # Convert chat history to a JSON string
         chat_history_json = json.dumps(self.chat_history, sort_keys=True)
-        
+
         # Create a hash of the chat history
         chat_hash = hashlib.sha256(chat_history_json.encode('utf-8')).hexdigest()
-        
+
         # Return the hash prefixed with 0x to make it a valid hex string
         return f"0x{chat_hash}"
 
@@ -239,13 +243,14 @@ class AG2(BaseApplication):
 
         # Format response
         response = self.format_chat_result(chat_result)
-        
+
         return response
+
 
 if __name__ == "__main__":
     # Create the AG2 application
     app = AG2()
-    
+
     # Start the ABCI server in the main thread
     abci_server = ABCIService(app)
     abci_server.start()
