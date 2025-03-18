@@ -78,3 +78,8 @@ typechain-types
 *.db
 .data
 .logs
+
+## conventional commit related files
+node_modules/  
+package-lock.json 
+
