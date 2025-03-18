@@ -81,3 +81,8 @@ typechain-types
 .idea
 .venv
 .DS_Store
+
+## conventional commit related files
+node_modules/  
+package-lock.json 
+
