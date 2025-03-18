@@ -78,3 +78,6 @@ typechain-types
 *.db
 .data
 .logs
+.idea
+.venv
+.DS_Store

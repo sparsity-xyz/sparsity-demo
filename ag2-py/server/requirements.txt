@@ -4,3 +4,6 @@ grpcio~=1.70.0
 eth-abi~=5.2.0
 protobuf~=5.29.3
 openai~=1.64.0
+--index-url https://test.pypi.org/simple/
+--extra-index-url https://pypi.org/simple/
+py-abci>=0.1.13
