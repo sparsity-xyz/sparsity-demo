@@ -7,8 +7,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const accounts = [
-  process.env.PROXY_ADMIN_PRIVATE_KEY,
-  process.env.CONTRACT_OWNER_PRIVATE_KEY
+  process.env.DEPLOYER_PRIVATE_KEY || "",
 ].filter(Boolean) as string[];
 
 
@@ -23,11 +22,11 @@ const config: HardhatUserConfig = {
       },
     },
     optimism_sepolia: {
-      url: process.env.OPTIMISM_RPC,
+      url: process.env.OPTIMISM_RPC || "",
       accounts: accounts,
     },
     base_sepolia: {
-      url: process.env.BASE_RPC,
+      url: process.env.BASE_RPC || "",
       accounts: accounts,
     }
   },

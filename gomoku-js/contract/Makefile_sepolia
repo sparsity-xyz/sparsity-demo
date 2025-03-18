@@ -4,28 +4,9 @@ ifneq (,$(wildcard .env))
 endif
 
 deploy:
-	npx hardhat ignition deploy ignition/modules/OutpostProxy.ts --network base_sepolia
-	npx hardhat ignition deploy ignition/modules/ManagerProxy.ts --network optimism_sepolia
-
-upgrade-outpost:
-	npx hardhat ignition deploy ignition/modules/OutpostUpgrade.ts --network base_sepolia
-
-upgrade-manager:
-	npx hardhat ignition deploy ignition/modules/ManagerUpgrade.ts --network optimism_sepolia
+	npx hardhat ignition deploy ignition/modules/APP.ts --network base_sepolia
 
 register-app:
-	cast send ${OUTPOST_PROXY_CONTRACT} \
-	--private-key  ${CONTRACT_OWNER_PRIVATE_KEY} \
-	--rpc-url ${BASE_RPC} \
-	"registerAPP(address)" ${APP_CONTRACT}
-
-set-approver:
-	cast send ${OUTPOST_PROXY_CONTRACT} --private-key ${CONTRACT_OWNER_PRIVATE_KEY} --rpc-url ${BASE_RPC} "setApprover(address,bool)" ${APP_APPROVER} true
-
-set-bridge:
-	cast send ${OUTPOST_PROXY_CONTRACT} --private-key ${CONTRACT_OWNER_PRIVATE_KEY} --rpc-url ${BASE_RPC} "setBridge(address,bool)" ${OUTPOST_BRIDGE_ADDRESS} true
-	cast send ${MANAGER_PROXY_CONTRACT} --private-key ${CONTRACT_OWNER_PRIVATE_KEY} --rpc-url ${OPTIMISM_RPC} "setBridge(address,bool)" ${MANAGER_BRIDGE_ADDRESS} true
-
-verify:
-	npx hardhat verify --network base_sepolia ${OUTPOST_PROXY_CONTRACT}
-	npx hardhat verify --network optimism_sepolia ${MANAGER_PROXY_CONTRACT}
+	# register app to base_sepolia Sparsity outpost contract
+	# wait for the owner approve our request
+	cast send ${OUTPOST_PROXY_CONTRACT} --private-key ${DEPLOYER_PRIVATE_KEY} --rpc-url ${BASE_RPC} "registerAPP(address,string,string)" ${APP_CONTRACT} ${DOCKER_URI} ${DOCKER_HASH}
