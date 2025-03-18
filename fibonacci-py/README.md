@@ -49,10 +49,11 @@ docker run --rm -ti -e HOST=172.17.0.1 sparsityxyz/bridge:latest
 ### 4. Start the Fleet  
 The Fleet service is responsible for triggering the Sparsity execution session upon receiving signals from the host chain via the Bridge service.  
 
-#### Pull the Fleet Image  
+#### Pull the Fleet Images  
 
 ```bash
 docker pull sparsityxyz/fleet:latest
+docker pull sparsityxyz/fleet-er:latest
 ```  
 
 #### Initialize Fleet  
