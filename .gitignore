@@ -75,6 +75,7 @@ artifacts
 cache
 deployments
 typechain-types
-*.db
+.idea
 .data
-.logs
+.venv
+.DS_Store

@@ -11,7 +11,7 @@ import { BrowserProvider, Contract } from 'ethers'
 import ABI from './abi.json';
 
 
-const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
+const contractAddress = import.meta.env.VITE_APP_ADDRESS;
 const WEBSOCKET_INITIAL_RETRY_INTERVAL = 500;
 
 var contract: any = null;

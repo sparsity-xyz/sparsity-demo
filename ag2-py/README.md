@@ -1,6 +1,6 @@
-# Gomoku
+# AG2
 
-This demo app allows users to start and join Gomoku games via the App smart contract. The game interacts with the ABCI core for gameplay, and the final results are settled back to the App smart contract.
+This demo app allows users to start a chat with [AG2](https://github.com/ag2ai/ag2) via the App smart contract. The demo interacts with the ABCI core for AG2, and the final hash of the messages are settled back to the App smart contract.
 
 ## Components
 
@@ -18,9 +18,14 @@ Follow these steps to set up and run the app locally.
    ```bash
    cd server
    ```
-   b) Build the Docker image:
+   b) Generate your api key (see [here](https://github.com/chatanywhere/GPT_API_free) for a free api key):
    ```bash
-   docker build -t abci-gomoku .
+   cp api_key_example.json api_key.json
+   // fill the fields in api_key.json
+   ```
+   c) Build the Docker image:
+   ```bash
+   docker build -t abci-ag2 .
    ```
 
 ### 2. Start the Chain Node and Deploy the Smart Contract  
@@ -129,29 +134,28 @@ Follow these steps to set up and run the app locally.
    e) You can now play the game locally at [http://localhost:5173](http://localhost:5173)!
 
 ### 6. Interact with the Client  
-   a) **Test Addresses**
+    
+   a) **Test Address**
    ```
    Address 1: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
    Private Key: 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
-
-   Address 2: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
-   Private Key: 0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d
    ```
    b) **Connect Wallet**
    - Open [http://localhost:5173](http://localhost:5173) in your browser.
    - Connect wallet `0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266`.
    
-   c) **Join Game**
-   - Click the **Join Game** button and sign the transaction.
+   c) **Start Chat**
+   - Click the **Star Game** button and sign the transaction.
    - Ensure it is connected to the **Localhost** chain.
 
-   d) **Open Another Session & Join with a Different Address**
-   - Use a different browser session.
-   - Connect with address `0x70997970C51812dc3A010C7d01b50e0d17dc79C8`.
-   - Join the game.
+   d) **Wait for the session setup**
+   - Wait for the session created, after session created, you will sign a message to login.
 
-   e) **Play the Game**
-   - Play between two browser sessions.
-   - Wait for the game to be settled on-chain.
-   - Check on-chain results in the smart contract. 
+   e) **Send the messages**
+   - After login, you can send the messages.
 
+   f) **Exit**
+   - Send `exit` will finish the chat
+
+   g) **Settlement**
+   - After sending `exit`, waiting for the result settlement
