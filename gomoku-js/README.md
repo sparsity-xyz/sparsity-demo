@@ -57,7 +57,7 @@ Follow these steps to set up and run the app locally.
    ```
 
 ### 4. Start the Fleet  
-   a) Pull the Fleet image:
+   a) Pull the Fleet images:
    ```bash
    docker pull sparsityxyz/fleet:latest
    docker pull sparsityxyz/fleet-er:latest
