@@ -60,6 +60,7 @@ Follow these steps to set up and run the app locally.
    a) Pull the Fleet image:
    ```bash
    docker pull sparsityxyz/fleet:latest
+   docker pull sparsityxyz/fleet-er:latest
    ```
    b) Initialize Fleet:
    ```bash
@@ -91,20 +92,20 @@ Follow these steps to set up and run the app locally.
        --add-host=host.docker.internal:172.17.0.1 \
        sparsityxyz/fleet:latest fleet register --ip 127.0.0.1
    ```
-   d) Run Fleet (whitelisting two addresses):
+   d) Run Fleet:
    ```bash
    # macOS
    docker run -ti --rm \
        -v ./.data:/root/.fleet \
        -v /var/run/docker.sock:/var/run/docker.sock \
-       sparsityxyz/fleet:latest fleet run --no-indexer --mock-address 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --mock-address 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+       sparsityxyz/fleet:latest fleet run 
 
    # Linux
    docker run -ti --rm \
        -v ./.data:/root/.fleet \
        -v /var/run/docker.sock:/var/run/docker.sock \
        --add-host=host.docker.internal:172.17.0.1 \
-       sparsityxyz/fleet:latest fleet run --no-indexer --mock-address 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --mock-address 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+       sparsityxyz/fleet:latest fleet run  
    ```
 
 ### 5. Start the Client  
@@ -116,15 +117,14 @@ Follow these steps to set up and run the app locally.
    ```bash
    npm install
    ```
-   c) Create a project in [Reown](https://reown.com/blog/how-to-get-started-with-appkit) and fill in the `VITE_PROJECT_ID` in the `.env` file:
+   c) Copy the environment file:
    ```
-   VITE_PROJECT_ID=
+   cp .env.example .env
    ```
+   Create a project in [Reown](https://reown.com/blog/how-to-get-started-with-appkit) and fill in the `VITE_PROJECT_ID` in the `.env` file.
    d) Run the app:
-   ```bash
-   yarn start
-   # or
-   npm run start
+   ```bash 
+   npm run dev
    ```
    e) You can now play the game locally at [http://localhost:5173](http://localhost:5173)!
 

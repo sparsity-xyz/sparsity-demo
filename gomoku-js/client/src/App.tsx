@@ -220,8 +220,7 @@ const App: React.FC = () => {
   }
 
   async function loginServer(endpoint: string) {
-    try {
-      console.log('HAHA')
+    try { 
       // sign the message
       const message = 'LOGIN-GOMOKU-' + randomString(16)
       const signature = await sign(message)
@@ -258,16 +257,14 @@ const App: React.FC = () => {
   }
 
   const initWebsocket = (endpoint: string) => {
-    let newSocket: WebSocket
-    let retryCount = 0
+    let newSocket: WebSocket 
     const addr = address as string
 
     const connectWebSocket = () => {
       newSocket = new WebSocket(`ws://${endpoint}/ws`)
 
       newSocket.onopen = () => {
-        console.log('WebSocket connect successed')
-        retryCount = 0
+        console.log('WebSocket connect successed') 
         const content = {
           requestType: RequestType.New,
           address: address,
@@ -296,6 +293,7 @@ const App: React.FC = () => {
               }
               const serverRoom = JSON.parse(x.attributes[0].value)
               console.log('Parsed serverRoom:', serverRoom)
+
               if (!serverRoom || Object.keys(serverRoom).length === 0) {
                 console.log('Early return: serverRoom is empty or null')
                 return
@@ -314,6 +312,12 @@ const App: React.FC = () => {
                 )
                 return
               }
+
+              if (serverRoom?.playerColor?.length < 2) {
+                // waiting for both user to be ready
+                return;
+              }
+
               console.log('color', serverRoom.state.playerColor[addr])
 
               const state = serverRoom.state
