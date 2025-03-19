@@ -33,7 +33,10 @@ export const localhost = defineChain({
 })
 
 // for custom networks visit -> https://docs.reown.com/appkit/react/core/custom-networks
-export const networks = [localhost, baseSepolia] as [AppKitNetwork, ...AppKitNetwork[]]
+export const networks = [localhost, baseSepolia] as [
+  AppKitNetwork,
+  ...AppKitNetwork[],
+]
 
 // Set up Solana Adapter
 export const ethersAdapter = new EthersAdapter()
