@@ -113,6 +113,7 @@ Now that everything is running locally, you can perform end-to-end testing by in
 To compute Fibonacci for a given number (e.g., `10`):  
 
 ```bash
+cd contract
 make request-fib NUM=10
 ```  
 

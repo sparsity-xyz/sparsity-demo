@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Board from './Board'
 
 import { Message, BatchState, MessageType } from './websocket'
@@ -45,8 +45,9 @@ const toggleColorMap: { [key in Color]: Color } = {
 }
 
 enum PlayerStatus {
-  Unconnected,
+  WalletUnconnected,
   Unjoined,
+  Joining, // transit on clicking join game
   Pairing,
   Gaming,
   Finished,
@@ -54,6 +55,8 @@ enum PlayerStatus {
 }
 
 const App: React.FC = () => {
+  const pairingIntervalRef = useRef<NodeJS.Timeout | null>(null)
+
   // game states
   const [step, setStep] = useState(0)
   const [playerColor, setPlayerColor] = useState<{ [key: string]: string }>({})
@@ -64,7 +67,9 @@ const App: React.FC = () => {
 
   const [socket, setSocket] = useState<WebSocket | null>(null)
   const [winner, setWinner] = useState<string | null>(null)
-  const [playerStatus, setPlayerStatus] = useState(PlayerStatus.Unconnected)
+  const [playerStatus, setPlayerStatus] = useState(
+    PlayerStatus.WalletUnconnected
+  )
 
   // abci server state
   const [roomId, setRoomId] = useState<string | null>(null)
@@ -97,7 +102,7 @@ const App: React.FC = () => {
       return
     }
     // address connected
-    if (playerStatus === PlayerStatus.Unconnected) {
+    if (playerStatus === PlayerStatus.WalletUnconnected) {
       setPlayerStatus(PlayerStatus.Unjoined)
       return
     }
@@ -116,7 +121,11 @@ const App: React.FC = () => {
 
     // start check on chain session before start
     if (playerStatus === PlayerStatus.Pairing) {
-      const intervalId = setInterval(async () => {
+      if (pairingIntervalRef.current) {
+        clearInterval(pairingIntervalRef.current)
+      }
+
+      pairingIntervalRef.current = setInterval(async () => {
         try {
           if (onChainRoomId == null) {
             const roomId = await getPlayerRoomId()
@@ -126,7 +135,10 @@ const App: React.FC = () => {
           const session = await getSession()
 
           if (session.status == 2) {
-            clearInterval(intervalId)
+            if (pairingIntervalRef.current) {
+              clearInterval(pairingIntervalRef.current)
+              pairingIntervalRef.current = null
+            }
             await loginServer(session.endpoint)
             setPlayerStatus(PlayerStatus.Gaming)
           }
@@ -134,7 +146,12 @@ const App: React.FC = () => {
           console.error('Error polling session:', error)
         }
       }, 2000)
-      return () => clearInterval(intervalId)
+      return () => {
+        if (pairingIntervalRef.current) {
+          clearInterval(pairingIntervalRef.current)
+          pairingIntervalRef.current = null
+        }
+      }
     }
 
     // check if settled
@@ -220,14 +237,14 @@ const App: React.FC = () => {
   }
 
   async function loginServer(endpoint: string) {
-    try { 
+    try {
       // sign the message
       const message = 'LOGIN-GOMOKU-' + randomString(16)
       const signature = await sign(message)
 
       console.log(message, signature)
 
-      const response = await fetch("http://"+endpoint + '/login', {
+      const response = await fetch('http://' + endpoint + '/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -257,14 +274,14 @@ const App: React.FC = () => {
   }
 
   const initWebsocket = (endpoint: string) => {
-    let newSocket: WebSocket 
+    let newSocket: WebSocket
     const addr = address as string
 
     const connectWebSocket = () => {
       newSocket = new WebSocket(`ws://${endpoint}/ws`)
 
       newSocket.onopen = () => {
-        console.log('WebSocket connect successed') 
+        console.log('WebSocket connect successed')
         const content = {
           requestType: RequestType.New,
           address: address,
@@ -315,7 +332,7 @@ const App: React.FC = () => {
 
               if (serverRoom?.playerColor?.length < 2) {
                 // waiting for both user to be ready
-                return;
+                return
               }
 
               console.log('color', serverRoom.state.playerColor[addr])
@@ -422,6 +439,7 @@ const App: React.FC = () => {
   const block = Array(BOARD_GRID_SIZE * BOARD_GRID_SIZE).fill(null)
 
   const handleJoinClick = async () => {
+    setPlayerStatus(PlayerStatus.Joining)
     // TODO: handle failure
     const res = await joinGame()
 
@@ -446,7 +464,7 @@ const App: React.FC = () => {
   const actionAreaData = () => {
     let text = ''
     let action = <appkit-button />
-    if (playerStatus === PlayerStatus.Unconnected) {
+    if (playerStatus === PlayerStatus.WalletUnconnected) {
       text = 'Connect your wallet'
     } else if (playerStatus === PlayerStatus.Unjoined) {
       text = 'Join the game'
@@ -455,6 +473,8 @@ const App: React.FC = () => {
           Join Game
         </button>
       )
+    } else if (playerStatus === PlayerStatus.Joining) {
+      text = 'Joining the game..'
     } else if (playerStatus === PlayerStatus.Pairing) {
       text = 'Matching in progress..'
     } else if (playerStatus === PlayerStatus.Gaming) {
