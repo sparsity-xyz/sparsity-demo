@@ -62,50 +62,18 @@ Follow these steps to set up and run the app locally.
    docker pull sparsityxyz/fleet:latest
    docker pull sparsityxyz/fleet-er:latest
    ```
-   b) Initialize Fleet:
+   b) Run Fleet:
    ```bash
    # macOS
    docker run -ti --rm \
-       -v ./.data:/root/.fleet \
        -v /var/run/docker.sock:/var/run/docker.sock \
-       sparsityxyz/fleet:latest fleet init --local
+       sparsityxyz/fleet:latest fleet run --local
 
    # Linux
    docker run -ti --rm \
-       -v ./.data:/root/.fleet \
        -v /var/run/docker.sock:/var/run/docker.sock \
        --add-host=host.docker.internal:172.17.0.1 \
-       sparsityxyz/fleet:latest fleet init --local
-   ```
-   c) Register Fleet:
-   ```bash
-   # macOS
-   docker run -ti --rm \
-       -v ./.data:/root/.fleet \
-       -v /var/run/docker.sock:/var/run/docker.sock \
-       sparsityxyz/fleet:latest fleet register --ip 127.0.0.1
-
-   # Linux
-   docker run -ti --rm \
-       -v ./.data:/root/.fleet \
-       -v /var/run/docker.sock:/var/run/docker.sock \
-       --add-host=host.docker.internal:172.17.0.1 \
-       sparsityxyz/fleet:latest fleet register --ip 127.0.0.1
-   ```
-   d) Run Fleet:
-   ```bash
-   # macOS
-   docker run -ti --rm \
-       -v ./.data:/root/.fleet \
-       -v /var/run/docker.sock:/var/run/docker.sock \
-       sparsityxyz/fleet:latest fleet run 
-
-   # Linux
-   docker run -ti --rm \
-       -v ./.data:/root/.fleet \
-       -v /var/run/docker.sock:/var/run/docker.sock \
-       --add-host=host.docker.internal:172.17.0.1 \
-       sparsityxyz/fleet:latest fleet run  
+       sparsityxyz/fleet:latest fleet run --local
    ```
 
 ### 5. Start the Client  
