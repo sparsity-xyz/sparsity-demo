@@ -88,7 +88,7 @@ contract Outpost is Initializable, OwnableUpgradeable {
         _appSession[appAddress][sessionId] = session;
         // callback to app
         (bool success, ) = appAddress.call(abi.encodeWithSignature("callbackSession(uint256,(string,address,uint8))", sessionId, session));
-        require(success, "Call to appAddress failed");
+        require(success, "Session callback to app failed");
     }
 
     function getAPPSession(address appAddress, uint256 sessionId) public view returns (CallbackSession memory) {
@@ -108,7 +108,7 @@ contract Outpost is Initializable, OwnableUpgradeable {
 
         // appAddress.call(abi.encodeWithSignature("callbackSettlement(uint256,bool,bytes)", sessionId, isRevert, data));
         (bool success, ) = appAddress.call(abi.encodeWithSignature("callbackSettlement(uint256,bool,bytes)", sessionId, isRevert, data));
-        require(success, "Call to appAddress failed");
+        require(success, "Settle callback to app failed");
 
         emit Settle(appAddress, sessionId, true);
     }
