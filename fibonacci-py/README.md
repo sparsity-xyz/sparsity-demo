@@ -12,6 +12,8 @@ This demo showcases interaction with the **Sparsity Platform**. The application 
 - **Dependencies:**  
   - [Foundry](https://book.getfoundry.sh/) installed  
   - `npm` or `yarn` installed  
+  - **Docker**: Ensure the Docker service is installed and running before proceeding.  
+
 
 ### 1. Build the Docker Image  
 The Docker image contains the ABCI core, encapsulating all computation and execution logic.  

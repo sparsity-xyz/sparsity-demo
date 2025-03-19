@@ -12,30 +12,40 @@ This demo showcases interaction with the **Sparsity Platform**. The application 
 - **Dependencies:**  
   - [Foundry](https://book.getfoundry.sh/) installed  
   - `npm` or `yarn` installed  
+  - **Docker**: Ensure the Docker service is installed and running before proceeding.  
 
 ### 1. Build the Docker Image  
 The Docker image contains the ABCI core, encapsulating all computation and execution logic.  
 
+Open a new terminal in the **fibonacci-js** directory:  
 ```bash
 cd server
 docker build -t abci-fib:latest .
 ```  
 
 ### 2. Start the Chain Node and Deploy the Smart Contract  
-Simulates an EVM chain locally and deploys the smart contract.  
+This step simulates an EVM chain locally and deploys the smart contract.  
 
+Open a new terminal in the **fibonacci-js** directory:  
 ```bash
 cd contract
-npm install
+
+# Ignore any warning messages
+npm install 
+
+# Pre-configured example environment variables for quick setup.
+# Please avoid committing sensitive credentials to Git.
 cp .env.example .env
+
 make node
 ```  
 
 Wait until blocks start building before proceeding. Check the terminal output to ensure blocks are being produced.
 
 ### 3. Start the Bridge  
-The Bridge service connects the host EVM chain with the Sparsity platform.  
+The **Bridge** service connects the host EVM chain with the **Sparsity platform**.  
 
+Open a new terminal and run:  
 ```bash
 docker pull sparsityxyz/bridge:latest
 
@@ -47,16 +57,15 @@ docker run --rm -ti -e HOST=172.17.0.1 sparsityxyz/bridge:latest
 ```  
 
 ### 4. Start the Fleet  
-The Fleet service is responsible for triggering the Sparsity execution session upon receiving signals from the host chain via the Bridge service.  
+The **Fleet** service triggers the Sparsity execution session upon receiving signals from the host chain via the Bridge service.  
 
-#### Pull the Fleet Images  
-
+Open a new terminal and pull the Fleet images:  
 ```bash
 docker pull sparsityxyz/fleet:latest
 docker pull sparsityxyz/fleet-er:latest
 ```  
 
-#### Run Fleet  
+Then, run the Fleet service:  
 
 ```bash
 # macOS
@@ -72,10 +81,11 @@ docker run -ti --rm \
 ```  
 
 ### 5. Interact with the Smart Contract  
-Now that everything is running locally, you can perform end-to-end testing by interacting with the smart contract.  
+Once everything is running locally, you can perform end-to-end testing by interacting with the smart contract.  
 
 To compute Fibonacci for a given number (e.g., `10`):  
 
+Open a new terminal in the **fibonacci-js** directory:  
 ```bash
 cd contract
 make request-fib NUM=10
@@ -95,7 +105,7 @@ make fib-result NUM=10
 
 ---
 
-# Deployment to devnet
+## Deployment to Devnet  
 
 ### 1. Deploy the App Contract  
 
