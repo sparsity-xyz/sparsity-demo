@@ -8,11 +8,20 @@ This demo showcases interaction with the **Sparsity Platform**. The application 
 ## Running the App Locally  
 
 ### Prerequisites  
-- **OS:** macOS or Linux (Windows users should use WSL)  
+- **OS:** macOS or Linux (Windows users should use WSL)
 - **Dependencies:**  
-  - [Foundry](https://book.getfoundry.sh/) installed  
-  - `npm` or `yarn` installed  
-  - **Docker**: Ensure the Docker service is installed and running before proceeding.  
+  - [Foundry](https://book.getfoundry.sh/): Ethereum development toolchain for smart contract development
+    ```bash
+    curl -L https://foundry.paradigm.xyz | bash
+    foundryup
+    ```
+  - Node.js package manager: Install either [npm](https://nodejs.org/) (comes with Node.js) or [yarn](https://yarnpkg.com/getting-started/install)
+  - **Docker**: Container platform for running services
+    - [Install Docker for Mac](https://docs.docker.com/desktop/install/mac-install/)
+    - [Install Docker for Linux](https://docs.docker.com/engine/install/)
+    - [Install Docker for Windows + WSL](https://docs.docker.com/desktop/windows/wsl/)
+
+Make sure all services are properly installed and Docker daemon is running before proceeding with the setup.
 
 ### 1. Build the Docker Image  
 The Docker image contains the ABCI core, encapsulating all computation and execution logic.  
