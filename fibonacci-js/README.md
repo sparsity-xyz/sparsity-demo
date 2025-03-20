@@ -119,9 +119,15 @@ Open a new terminal in the **fibonacci-js** directory:
 ```bash
 cd contract
 make request-fib NUM=10
-```  
+```   
 
-Wait for the **Bridge** and **Fleet** to process the request, then retrieve the result:  
+Wait for the **Bridge** and **Fleet** to process the request. Once you see a message like this:
+
+```
+I[2025-03-20|01:14:18.616] Settlement success                           hash=0xc58176e897f9755822bd6001e3e1fdb086d62ffcc846e6c873e4a70323262d4f
+```
+
+It indicates that the settlement was successful. Then, retrieve the result by running:  
 
 ```bash
 make fib-result NUM=10
