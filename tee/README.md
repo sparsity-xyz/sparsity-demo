@@ -1,4 +1,4 @@
-# TEE (Trusted Execution Environment) Demo
+# TEE (Trusted Execution Environment) Demo - Alpha Version
 
 A simple demonstration of a Trusted Execution Environment using AWS Nitro Enclaves. This project includes a simulation mode for local development and testing.
 
@@ -79,7 +79,4 @@ View logs from both containers:
 ```bash
 docker compose logs -f
 ```
-
-## License
-
-[Your License Here]
+ 
