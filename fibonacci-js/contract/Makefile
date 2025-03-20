@@ -20,7 +20,7 @@ PID_FILE := process.pid
 
 node:
 	$(KILL_ANVIL)
-	nohup anvil --block-time 1 > nohup.log 2>&1 &
+	nohup anvil --block-time 1 --silent > nohup.log 2>&1 &
 	@echo "INFO: Local node started, block time is 1s"
 	@echo "$(GREEN)INFO: Deploying contracts$(NC)"
 	${MAKE} deploy
