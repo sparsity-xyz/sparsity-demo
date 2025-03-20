@@ -142,13 +142,23 @@ make fib-result NUM=10
 
 ### 1. Deploy the App Contract  
 
+Open a new terminal in the **fibonacci-js** directory:
+
 ```bash
 cd contract
 cp .env.example.sepolia .env
-# Fill in your deployer private key in the .env file
+```
+
+Next, update the `.env` file by adding your deployer private key.
+
+**Note:** The Base Sepolia RPC endpoint may sometimes be unstable. If you encounter issues, try different endpoints from [Chainlist](https://chainlist.org/chain/84532) and update the `BASE_RPC` variable in your `.env` file accordingly.
+
+To deploy the contract, run:  
+```bash
 make -f Makefile_sepolia deploy
-# Add the deployed contract address to the .env file
-```  
+```
+
+Afterwards, add the deployed contract address to your `.env` file.
 
 ### 2. Publish the App to a Public Docker Registry  
 
