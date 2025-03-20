@@ -110,15 +110,15 @@ I[2025-03-19|23:19:33.317] All historical data processed                module=e
 ### 5. Interact with the Smart Contract  
 Once everything is running locally, you can perform end-to-end testing by interacting with the smart contract.  
 
-To compute Fibonacci for a given number (e.g., `10`):  
+To compute Fibonacci for a given number (e.g., `30`):  
 
 Open a new terminal in the **fibonacci-js** directory:  
 ```bash
 cd contract
-make request-fib NUM=10
+make request-fib NUM=30
 ```   
 
-Wait for the **Bridge** and **Fleet** to process the request. Once you see a message like this in the Fleet terminal:
+Wait for the **Bridge** and **Fleet** to process the request. The system will first start the ABCI container and then compute the result within seconds. Once you see a message like this in the Fleet terminal:
 
 ```
 I[2025-03-20|01:14:18.616] Settlement success                           hash=0xc58176e897f9755822bd6001e3e1fdb086d62ffcc846e6c873e4a70323262d4f
@@ -127,13 +127,13 @@ I[2025-03-20|01:14:18.616] Settlement success                           hash=0xc
 It indicates that the settlement was successful. Then, retrieve the result by running:  
 
 ```bash
-make fib-result NUM=10
+make fib-result NUM=30
 ```  
 
 **Expected output:**  
 
 ```bash
-55
+832040
 ```  
 
 ---
@@ -216,12 +216,12 @@ Submit a request in the Sparsity support channel [here](https://discord.gg/PvS5y
 ### 6. Call Your Contract  
 In contract directory
 ```bash
-make -f Makefile_sepolia request-fib NUM=10
+make -f Makefile_sepolia request-fib NUM=30
 ```  
 
 ### 7. Retrieve and Verify the Result  
 
 In contract directory
 ```bash
-make -f Makefile_sepolia fib-result NUM=10
+make -f Makefile_sepolia fib-result NUM=30
 ```  
