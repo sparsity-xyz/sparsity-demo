@@ -69,11 +69,9 @@ Example response:
 ### Building
  - Edit the enclave application in apps/simple_enclave_app.py for core app logic
 
-   - Use kms_service to interact with the computation verification endpoints
+ - Use kms_service to interact with the computation verification endpoints
 
-   - Use parent_connector to handle commmmunication with the parent app
-
- - After making changes, shut down the docker network using `make stop-sim` and then build & run the docker network using `make build-sim && make run-sim-fg`
+ - Use parent_connector to handle commmmunication with the parent app
 
 ### Logs
 

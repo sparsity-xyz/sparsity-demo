@@ -7,7 +7,8 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile.parent
-    container_name: nitro-parent
+    image: nitro-parent-sim
+    container_name: nitro-parent-sim
     ports:
       - "${PARENT_PORT:-8000}:${PARENT_PORT:-8000}"
     volumes:
@@ -38,7 +39,8 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile.enclave_sim
-    container_name: nitro-enclave
+    image: nitro-enclave-sim
+    container_name: nitro-enclave-sim
     environment:
       - ENV_SETUP=SIM
       - ENCLAVE_PORT=${ENCLAVE_PORT:-8000}

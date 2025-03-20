@@ -61,7 +61,7 @@ class KmsService(abc.ABC):
     def sign_data(self, data, region=None, credentials=None):
         """Sign data using KMS"""
         pass
-
+    
     def extract_attestation_from_output(self, stdout, stderr):
         """Extract an attestation document from command output"""
         combined_output = f"{stdout}\n{stderr}"
