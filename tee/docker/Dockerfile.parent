@@ -1,0 +1,30 @@
+FROM python:3.12
+
+# Install necessary packages
+RUN apt-get update && \
+    apt-get install -y \
+    curl \
+    jq \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
+RUN pip3 install --no-cache-dir \
+    flask \
+    cryptography \
+    boto3 \
+    requests
+
+# Set up working directory
+WORKDIR /app
+
+# Copy parent application code
+COPY src/parent/ /app/parent/
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV ENV_SETUP=SIM
+ENV PYTHONPATH=/app
+
+# Command to run when container starts
+CMD ["python3", "/app/parent/parent_app.py"] 
