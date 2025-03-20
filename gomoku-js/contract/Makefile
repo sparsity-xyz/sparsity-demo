@@ -15,20 +15,35 @@ PID_FILE := process.pid
 .PHONY: node deploy test-proxy send-settle-eth new-session authin authout session-result fib-result register-app approve-app approver upgrade-outpost er clear
 
 node:
-	$(KILL_ANVIL)
-	nohup anvil --block-time 1 > nohup.log 2>&1 &
+$(KILL_ANVIL)
+	nohup anvil --block-time 1 --silent > nohup.log 2>&1 &
+	@echo "INFO: Local node started, block time is 1s"
+	@echo "$(GREEN)INFO: Deploying contracts$(NC)"
 	${MAKE} deploy
+	@echo "$(GREEN)INFO: All of the outpost/manager/app contracts deployed$(NC)"
 	${MAKE} send-settle-eth
+	@echo "$(GREEN)INFO: Send transaction to register app to the outpost$(NC)"
 	${MAKE} register-app
+	@echo "$(GREEN)INFO: Transaction succeed, app registered$(NC)"
+	@echo ""
+	@echo "$(GREEN)INFO: Send transaction to outpost to approve app$(NC)"
 	${MAKE} approve-app
+	@echo "$(GREEN)INFO: Transaction succeed, app approved$(NC)"
+	@echo ""
+	@echo "$(GREEN)INFO: Send transaction to set bridge addresses$(NC)"
 	${MAKE} set-manager-bridge
 	${MAKE} set-outpost-bridge
-	tail -f nohup.log
+	@echo "$(GREEN)INFO: Bridge addresses set$(NC)"
+	@echo "$(GREEN)INFO: Initialization complete$(NC)"
+	@tail -f nohup.log
 
 deploy:
 	npx hardhat ignition deploy ignition/modules/OutpostProxy.ts --network localhost
+	@echo "$(GREEN)INFO: Outpost contract deployed$(NC)"
 	npx hardhat ignition deploy ignition/modules/ManagerProxy.ts --network localhost
+	@echo "$(GREEN)INFO: Manager contract deployed$(NC)"
 	npx hardhat ignition deploy ignition/modules/APP.ts --network localhost
+	@echo "$(GREEN)INFO: APP contract deployed$(NC)"
 
 send-settle-eth:
 	cast send ${FLEET_SETTLER_ADDRESS} --value 10ether --private-key ${PROXY_ADMIN_PRIVATE_KEY}
