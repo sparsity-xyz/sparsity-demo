@@ -15,7 +15,7 @@ PID_FILE := process.pid
 .PHONY: node deploy test-proxy send-settle-eth new-session authin authout session-result fib-result register-app approve-app approver upgrade-outpost er clear
 
 node:
-$(KILL_ANVIL)
+	$(KILL_ANVIL)
 	nohup anvil --block-time 1 --silent > nohup.log 2>&1 &
 	@echo "INFO: Local node started, block time is 1s"
 	@echo "$(GREEN)INFO: Deploying contracts$(NC)"
