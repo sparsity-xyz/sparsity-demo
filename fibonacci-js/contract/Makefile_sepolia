@@ -4,7 +4,7 @@ ifneq (,$(wildcard .env))
 endif
 
 deploy:
-	npx hardhat ignition deploy ignition/modules/APP.ts --network base_sepolia --reset
+	npx hardhat ignition deploy ignition/modules/APP.ts --network base_sepolia
 
 register-app:
 	# register app to base_sepolia Sparsity outpost contract
