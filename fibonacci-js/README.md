@@ -70,13 +70,12 @@ docker run --rm -ti -e HOST=host.docker.internal sparsityxyz/bridge:latest
 docker run --rm -ti -e HOST=172.17.0.1 sparsityxyz/bridge:latest
 ```  
 
-Once you see the following signal in the terminal:  
+Once you see the following signal in the terminal, it indicates that the bridge service has started and is running. You can now proceed to the next section.  
 
 ```
 I[2025-03-19|23:10:20.791] All historical data processed                module=eventListener 
 ```  
 
-it indicates that the bridge service has started and is running. You can now proceed to the next section.
 
 ### 4. Start the Fleet  
 The **Fleet** service triggers the Sparsity execution session upon receiving signals from the host chain via the Bridge service.  
@@ -102,13 +101,11 @@ docker run -ti --rm \
     sparsityxyz/fleet:latest fleet run --local
 ```  
 
-Once the following signal appears in the terminal:  
+Once the following signal appears in the terminal, it confirms that the fleet service has successfully started and is running. You can now proceed to the next section.  
 
 ```
 I[2025-03-19|23:19:33.317] All historical data processed                module=eventListener 
 ```  
-
-it confirms that the fleet service has successfully started and is running. You can now proceed to the next section.
 
 ### 5. Interact with the Smart Contract  
 Once everything is running locally, you can perform end-to-end testing by interacting with the smart contract.  
@@ -121,7 +118,7 @@ cd contract
 make request-fib NUM=10
 ```   
 
-Wait for the **Bridge** and **Fleet** to process the request. Once you see a message like this:
+Wait for the **Bridge** and **Fleet** to process the request. Once you see a message like this in the Fleet terminal:
 
 ```
 I[2025-03-20|01:14:18.616] Settlement success                           hash=0xc58176e897f9755822bd6001e3e1fdb086d62ffcc846e6c873e4a70323262d4f
@@ -145,46 +142,83 @@ make fib-result NUM=10
 
 ### 1. Deploy the App Contract  
 
+Open a new terminal in the **fibonacci-js** directory:
+
 ```bash
 cd contract
 cp .env.example.sepolia .env
-# Fill in your deployer private key in the .env file
+```
+
+Next, update the `.env` file by adding your deployer private key.
+
+**Note:** The Base Sepolia RPC endpoint may sometimes be unstable. If you encounter issues, try different endpoints from [Chainlist](https://chainlist.org/chain/84532) and update the `BASE_RPC` variable in your `.env` file accordingly.
+
+To deploy the contract, run:  
+```bash
 make -f Makefile_sepolia deploy
-# Add the deployed contract address to the .env file
-```  
+```
+
+Afterwards, add the deployed contract address to your `.env` file.
 
 ### 2. Publish the App to a Public Docker Registry  
-
+#### Build the Docker image  
+Open a new terminal in the **fibonacci-js** directory:
 ```bash
-docker build --platform linux/amd64 -t yourusername/your-image-name:tag .
+cd server
+docker build --platform linux/amd64 -t <registry>/<repository>:<tag> .
+```
+This builds a Docker image with the specified tag, ensuring compatibility with `linux/amd64`.  
+
+#### Log in to Docker registry  
+```bash
 docker login
-docker push yourusername/your-image-name:tag
-```  
+```
+This authenticates you with the registry before pushing the image.  
 
-### 3. Update `dockerURI` and `dockerHash` in the `.env` File  
+#### Push the image to the registry  
+```bash
+docker push <registry>/<repository>:<tag>
+```
+This uploads the image to the specified repository.  
 
-Retrieve the image digest:  
+For more details, check the official Docker documentation:  
+🔗 [Docker Push Documentation](https://docs.docker.com/engine/reference/commandline/push/)
+
+
+### 3. Update the docker info in `.env` File 
+Update `dockerURI` and `dockerHash`
+```
+DOCKER_URI=
+DOCKER_HASH=
+```
+
+Retrieve the image digest and fill as `dockerHash`:  
 
 ```bash
-docker images --digests | grep yourusername/your-image-name
+docker images --digests | grep <registry>/<repository>
 ```  
 
 ### 4. Register Your Contract with the Sparsity Outpost Contract  
 
+Open a new terminal in the **fibonacci-js** directory:
+
 ```bash
+cd contract
 make -f Makefile_sepolia register-app
 ```  
 
-### 5. Wait for Official Approval from Sparsity  
+### 5. Wait for Official Approval from Sparsity   
+Submit a request in the Sparsity support channel [here](https://discord.gg/PvS5yfPBwH) and contact a support engineer. Once approved, your DApp will be fully deployed.
 
 ### 6. Call Your Contract  
-
+In contract directory
 ```bash
 make -f Makefile_sepolia request-fib NUM=10
 ```  
 
 ### 7. Retrieve and Verify the Result  
 
+In contract directory
 ```bash
 make -f Makefile_sepolia fib-result NUM=10
 ```  
