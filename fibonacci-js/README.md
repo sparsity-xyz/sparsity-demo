@@ -70,13 +70,12 @@ docker run --rm -ti -e HOST=host.docker.internal sparsityxyz/bridge:latest
 docker run --rm -ti -e HOST=172.17.0.1 sparsityxyz/bridge:latest
 ```  
 
-Once you see the following signal in the terminal:  
+Once you see the following signal in the terminal, it indicates that the bridge service has started and is running. You can now proceed to the next section.  
 
 ```
 I[2025-03-19|23:10:20.791] All historical data processed                module=eventListener 
 ```  
 
-it indicates that the bridge service has started and is running. You can now proceed to the next section.
 
 ### 4. Start the Fleet  
 The **Fleet** service triggers the Sparsity execution session upon receiving signals from the host chain via the Bridge service.  
@@ -102,13 +101,11 @@ docker run -ti --rm \
     sparsityxyz/fleet:latest fleet run --local
 ```  
 
-Once the following signal appears in the terminal:  
+Once the following signal appears in the terminal, it confirms that the fleet service has successfully started and is running. You can now proceed to the next section.  
 
 ```
 I[2025-03-19|23:19:33.317] All historical data processed                module=eventListener 
 ```  
-
-it confirms that the fleet service has successfully started and is running. You can now proceed to the next section.
 
 ### 5. Interact with the Smart Contract  
 Once everything is running locally, you can perform end-to-end testing by interacting with the smart contract.  
