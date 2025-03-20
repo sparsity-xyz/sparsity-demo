@@ -8,11 +8,20 @@ This demo showcases interaction with the **Sparsity Platform**. The application 
 ## Running the App Locally  
 
 ### Prerequisites  
-- **OS:** macOS or Linux (Windows users should use WSL)  
+- **OS:** macOS or Linux (Windows users should use WSL)
 - **Dependencies:**  
-  - [Foundry](https://book.getfoundry.sh/) installed  
-  - `npm` or `yarn` installed  
-  - **Docker**: Ensure the Docker service is installed and running before proceeding.  
+  - [Foundry](https://book.getfoundry.sh/): Ethereum development toolchain for smart contract development
+    ```bash
+    curl -L https://foundry.paradigm.xyz | bash
+    foundryup
+    ```
+  - Node.js package manager: Install either [npm](https://nodejs.org/) (comes with Node.js) or [yarn](https://yarnpkg.com/getting-started/install)
+  - **Docker**: Container platform for running services
+    - [Install Docker for Mac](https://docs.docker.com/desktop/install/mac-install/)
+    - [Install Docker for Linux](https://docs.docker.com/engine/install/)
+    - [Install Docker for Windows + WSL](https://docs.docker.com/desktop/windows/wsl/)
+
+Make sure all services are properly installed and Docker daemon is running before proceeding with the setup.
 
 ### 1. Build the Docker Image  
 The Docker image contains the ABCI core, encapsulating all computation and execution logic.  
@@ -42,7 +51,7 @@ make node
 
 Wait until blocks start building before proceeding. Check the terminal output to ensure blocks are being produced.
 
-Once you see a consistent block mining signal in the terminal, like this:  
+Once you see a consistent block mining signal in the terminal, as shown in the example below, you can proceed to the next section.
 
 ```
     Block Number: 36
@@ -54,7 +63,6 @@ Once you see a consistent block mining signal in the terminal, like this:
     Block Time: "Wed, 19 Mar 2025 23:07:43 +0000"  
 ```  
 
-you can proceed to the next section.
 
 ### 3. Start the Bridge  
 The **Bridge** service connects the host EVM chain with the **Sparsity platform**.  
@@ -110,15 +118,15 @@ I[2025-03-19|23:19:33.317] All historical data processed                module=e
 ### 5. Interact with the Smart Contract  
 Once everything is running locally, you can perform end-to-end testing by interacting with the smart contract.  
 
-To compute Fibonacci for a given number (e.g., `10`):  
+To compute Fibonacci for a given number (e.g., `30`):  
 
 Open a new terminal in the **fibonacci-js** directory:  
 ```bash
 cd contract
-make request-fib NUM=10
+make request-fib NUM=30
 ```   
 
-Wait for the **Bridge** and **Fleet** to process the request. Once you see a message like this in the Fleet terminal:
+Wait for the **Bridge** and **Fleet** to process the request. The system will first start the ABCI container and then compute the result within seconds. Once you see a message like this in the Fleet terminal:
 
 ```
 I[2025-03-20|01:14:18.616] Settlement success                           hash=0xc58176e897f9755822bd6001e3e1fdb086d62ffcc846e6c873e4a70323262d4f
@@ -127,13 +135,13 @@ I[2025-03-20|01:14:18.616] Settlement success                           hash=0xc
 It indicates that the settlement was successful. Then, retrieve the result by running:  
 
 ```bash
-make fib-result NUM=10
+make fib-result NUM=30
 ```  
 
 **Expected output:**  
 
 ```bash
-55
+832040
 ```  
 
 ---
@@ -158,7 +166,10 @@ To deploy the contract, run:
 make -f Makefile_sepolia deploy
 ```
 
-Afterwards, add the deployed contract address to your `.env` file.
+Afterwards, add the deployed contract address to your `.env` file:
+```
+APP_CONTRACT=
+```
 
 ### 2. Publish the App to a Public Docker Registry  
 #### Build the Docker image  
@@ -213,12 +224,12 @@ Submit a request in the Sparsity support channel [here](https://discord.gg/PvS5y
 ### 6. Call Your Contract  
 In contract directory
 ```bash
-make -f Makefile_sepolia request-fib NUM=10
+make -f Makefile_sepolia request-fib NUM=30
 ```  
 
 ### 7. Retrieve and Verify the Result  
 
 In contract directory
 ```bash
-make -f Makefile_sepolia fib-result NUM=10
+make -f Makefile_sepolia fib-result NUM=30
 ```  
