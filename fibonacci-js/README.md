@@ -158,7 +158,10 @@ To deploy the contract, run:
 make -f Makefile_sepolia deploy
 ```
 
-Afterwards, add the deployed contract address to your `.env` file.
+Afterwards, add the deployed contract address to your `.env` file:
+```
+APP_CONTRACT=
+```
 
 ### 2. Publish the App to a Public Docker Registry  
 #### Build the Docker image  
