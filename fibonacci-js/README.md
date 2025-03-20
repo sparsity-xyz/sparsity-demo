@@ -162,7 +162,9 @@ Afterwards, add the deployed contract address to your `.env` file.
 
 ### 2. Publish the App to a Public Docker Registry  
 #### Build the Docker image  
+Open a new terminal in the **fibonacci-js** directory:
 ```bash
+cd server
 docker build --platform linux/amd64 -t <registry>/<repository>:<tag> .
 ```
 This builds a Docker image with the specified tag, ensuring compatibility with `linux/amd64`.  
