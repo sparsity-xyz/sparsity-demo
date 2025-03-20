@@ -161,19 +161,34 @@ make -f Makefile_sepolia deploy
 Afterwards, add the deployed contract address to your `.env` file.
 
 ### 2. Publish the App to a Public Docker Registry  
-
+#### Build the Docker image  
 ```bash
-docker build --platform linux/amd64 -t yourusername/your-image-name:tag .
+docker build --platform linux/amd64 -t <registry>/<repository>:<tag> .
+```
+This builds a Docker image with the specified tag, ensuring compatibility with `linux/amd64`.  
+
+#### Log in to Docker registry  
+```bash
 docker login
-docker push yourusername/your-image-name:tag
-```  
+```
+This authenticates you with the registry before pushing the image.  
+
+#### Push the image to the registry  
+```bash
+docker push <registry>/<repository>:<tag>
+```
+This uploads the image to the specified repository.  
+
+For more details, check the official Docker documentation:  
+🔗 [Docker Push Documentation](https://docs.docker.com/engine/reference/commandline/push/)
+
 
 ### 3. Update `dockerURI` and `dockerHash` in the `.env` File  
 
 Retrieve the image digest:  
 
 ```bash
-docker images --digests | grep yourusername/your-image-name
+docker images --digests | grep <registry>/<repository>:<tag>
 ```  
 
 ### 4. Register Your Contract with the Sparsity Outpost Contract  
