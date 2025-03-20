@@ -185,30 +185,40 @@ For more details, check the official Docker documentation:
 🔗 [Docker Push Documentation](https://docs.docker.com/engine/reference/commandline/push/)
 
 
-### 3. Update `dockerURI` and `dockerHash` in the `.env` File  
+### 3. Update the docker info in `.env` File 
+Update `dockerURI` and `dockerHash`
+```
+DOCKER_URI=
+DOCKER_HASH=
+```
 
-Retrieve the image digest:  
+Retrieve the image digest and fill as `dockerHash`:  
 
 ```bash
-docker images --digests | grep <registry>/<repository>:<tag>
+docker images --digests | grep <registry>/<repository>
 ```  
 
 ### 4. Register Your Contract with the Sparsity Outpost Contract  
 
+Open a new terminal in the **fibonacci-js** directory:
+
 ```bash
+cd contract
 make -f Makefile_sepolia register-app
 ```  
 
-### 5. Wait for Official Approval from Sparsity  
+### 5. Wait for Official Approval from Sparsity   
+Submit a request in the Sparsity support channel [here](https://discord.gg/PvS5yfPBwH) and contact a support engineer. Once approved, your DApp will be fully deployed.
 
 ### 6. Call Your Contract  
-
+In contract directory
 ```bash
 make -f Makefile_sepolia request-fib NUM=10
 ```  
 
 ### 7. Retrieve and Verify the Result  
 
+In contract directory
 ```bash
 make -f Makefile_sepolia fib-result NUM=10
 ```  
