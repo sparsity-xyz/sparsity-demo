@@ -51,7 +51,7 @@ make node
 
 Wait until blocks start building before proceeding. Check the terminal output to ensure blocks are being produced.
 
-Once you see a consistent block mining signal in the terminal, like this:  
+Once you see a consistent block mining signal in the terminal, as shown in the example below, you can proceed to the next section.
 
 ```
     Block Number: 36
@@ -63,7 +63,6 @@ Once you see a consistent block mining signal in the terminal, like this:
     Block Time: "Wed, 19 Mar 2025 23:07:43 +0000"  
 ```  
 
-you can proceed to the next section.
 
 ### 3. Start the Bridge  
 The **Bridge** service connects the host EVM chain with the **Sparsity platform**.  

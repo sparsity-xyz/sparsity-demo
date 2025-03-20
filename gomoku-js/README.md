@@ -17,12 +17,18 @@ The demo consists of three main parts:
 Follow these steps to set up and run the app locally.  
 
 ### Prerequisites  
-
-- **OS:** macOS or Linux (Windows users should use WSL)  
+- **OS:** macOS or Linux (Windows users should use WSL)
 - **Dependencies:**  
-  - [Foundry](https://book.getfoundry.sh/) installed  
-  - `npm` or `yarn` installed  
-  - **Docker**: Ensure the Docker service is installed and running before proceeding  
+  - [Foundry](https://book.getfoundry.sh/): Ethereum development toolchain for smart contract development
+    ```bash
+    curl -L https://foundry.paradigm.xyz | bash
+    foundryup
+    ```
+  - Node.js package manager: Install either [npm](https://nodejs.org/) (comes with Node.js) or [yarn](https://yarnpkg.com/getting-started/install)
+  - **Docker**: Container platform for running services
+    - [Install Docker for Mac](https://docs.docker.com/desktop/install/mac-install/)
+    - [Install Docker for Linux](https://docs.docker.com/engine/install/)
+    - [Install Docker for Windows + WSL](https://docs.docker.com/desktop/windows/wsl/)
 
 ---
 
@@ -65,6 +71,17 @@ make node
 
 Wait until blocks start building before proceeding. Check the terminal output to ensure blocks are being produced.  
 
+Once you see a consistent block mining signal in the terminal, as shown in the example below, you can proceed to the next section.
+
+```
+    Block Number: 36
+    Block Hash: 0xf883b971d3024ebb9c2391eef0478a0b587ec3a58b1837b5a297b8028daaf116  
+    Block Time: "Wed, 19 Mar 2025 23:07:42 +0000"  
+
+    Block Number: 37  
+    Block Hash: 0x973de0985c3e0aee02a8f2e78eb9d3301cfdda83812077bbbf27dc9bcc6df47e  
+    Block Time: "Wed, 19 Mar 2025 23:07:43 +0000"  
+```  
 ---
 
 ### 3. Start the Bridge  
@@ -83,6 +100,12 @@ docker run --rm -ti -e HOST=host.docker.internal sparsityxyz/bridge:latest
 
 # Linux
 docker run --rm -ti -e HOST=172.17.0.1 sparsityxyz/bridge:latest
+```  
+
+Once you see the following signal in the terminal, it indicates that the bridge service has started and is running. You can now proceed to the next section.  
+
+```
+I[2025-03-19|23:10:20.791] All historical data processed                module=eventListener 
 ```  
 
 ---
@@ -111,6 +134,11 @@ docker run -ti --rm \
     sparsityxyz/fleet:latest fleet run --local
 ```  
 
+Once the following signal appears in the terminal, it confirms that the fleet service has successfully started and is running. You can now proceed to the next section.  
+
+```
+I[2025-03-19|23:19:33.317] All historical data processed                module=eventListener 
+```  
 ---
 
 ### 5. Start the Client  
@@ -147,7 +175,7 @@ The game will now be available at **[http://localhost:5173](http://localhost:517
 
 ### 6. Interact with the Client  
 
-#### a) Test Addresses  
+#### a) Test Addresses (These addresses are already fauceted in the local chain node) 
 
 ```plaintext
 Address 1: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
@@ -177,5 +205,4 @@ Private Key: 0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d
 
 - Take turns playing between two browser sessions.  
 - Wait for the game to be settled on-chain (reflected on UI).  
-
 
