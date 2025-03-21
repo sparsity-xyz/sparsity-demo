@@ -130,13 +130,19 @@ docker images --digests | grep yourusername/your-image-name
 make -f Makefile_sepolia register-app
 ```  
 
-### 5. Call Your Contract  
+### 5. Wait for Official Approval from Sparsity  
+
+For **devnet (Base Sepolia)** deployment in this demo, approval is **not required**—it will be approved automatically.  
+
+(For **production**, you need to submit a request in the Sparsity support channel [here](https://discord.gg/PvS5yfPBwH) and contact a support engineer. Once approved, your DApp will be fully deployed.)
+
+### 6. Call Your Contract  
 
 ```bash
 make -f Makefile_sepolia request-fib NUM=10
 ```  
 
-### 6. Retrieve and Verify the Result  
+### 7. Retrieve and Verify the Result  
 
 ```bash
 make -f Makefile_sepolia fib-result NUM=10

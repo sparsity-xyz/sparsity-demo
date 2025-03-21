@@ -167,11 +167,17 @@ To deploy the contract, run:
 ```bash
 make -f Makefile_sepolia deploy
 ```
-To redeploy if you already deployed a contract, run
-```bash
-make -f Makefile_sepolia deploy RESET=true
-```
-The deployment files will be stored in `ignition/deployments/chain-84532`
+
+The deployment files will be stored in:  
+```  
+ignition/deployments/chain-84532  
+```  
+
+During deployment, you could be prompted with the following options in the terminal. Select **"yes"** for both:  
+```  
+✔ Confirm deploy to network base_sepolia (84532)? … yes  
+✔ Confirm reset of deployment "chain-84532" on chain 84532? … yes  
+```  
 
 Afterwards, add the deployed contract address to your `.env` file:
 ```
@@ -225,7 +231,14 @@ cd contract
 make -f Makefile_sepolia register-app
 ```  
 
-### 5. Call Your Contract  
+### 5. Wait for Official Approval from Sparsity   
+
+For **devnet (Base Sepolia)** deployment in this demo, approval is **not required**—it will be approved automatically.  
+
+(For **production**, you need to submit a request in the Sparsity support channel [here](https://discord.gg/PvS5yfPBwH) and contact a support engineer. Once approved, your DApp will be fully deployed.)
+
+
+### 6. Call Your Contract  
 
 In contract directory
 ```bash
@@ -234,7 +247,7 @@ make -f Makefile_sepolia request-fib NUM=30
 
 The system will first start the ABCI container and then compute the result, with each step taking several seconds, depending on the allocated machine's performance.
 
-### 6. Retrieve and Verify the Result  
+### 7. Retrieve and Verify the Result  
 
 In contract directory
 ```bash
