@@ -23,29 +23,30 @@ This repository includes several full-stack demo applications built on the Spars
 
 ## Demo Applications  
 
-- [**Fibonacci JS**](./fibonacci-js/README.md)  
-- [**Fibonacci Python**](./fibonacci-py/README.md)  
-- [**Gomoku JS**](./gomoku-js/README.md)  
-- [**AG2 Python**](./ag2-py)  
+- [**Fibonacci JS**](./fibonacci-js/README.md) – Your "Hello World" for Sparsity  
+- [**Fibonacci Python**](./fibonacci-py/README.md) – Fibonacci, but make it Pythonic  
+- [**Gomoku JS**](./gomoku-js/README.md) – Making Sparsity DApps interactive  
+- [**AG2 Python**](./ag2-py) – AI agent doing its magic  
 
 ## Development Contribution  
 ### Setup & Commit Guidelines  
-Before committing, always install dependencies in the **root directory**:  
+Before committing, please always install dependencies in the **root directory**:  
 
 ```sh
 npm i
 ```  
 
-We enforce structured commit messages using **Commitlint**, **Husky**, and **Commitizen**.  
-Use the following command for commits:  
+We kindly enforce structured commit messages using **Commitlint**, **Husky**, and **Commitizen** to keep our project consistent and easy to maintain. 
+
+For a smooth and easy commit experience, simply use the following command:  
 
 ```sh
 git cz
 ```  
 
-This ensures consistency and adherence to our commit conventions.
+If you're new to this, don't worry! Here's a helpful [Git Commitizen tutorial](https://github.com/commitizen/cz-cli) to get you started. Feel free to check it out!
 
----  
+--- 
 
 For more details, refer to the official [Sparsity documentation](https://sparsity.gitbook.io/sparsity-platform).  
 
