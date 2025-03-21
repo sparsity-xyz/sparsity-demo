@@ -110,19 +110,53 @@ make -f Makefile_sepolia deploy
 
 ### 2. Publish the App to a Public Docker Registry  
 
+Refer to [Docker's official guide](https://docs.docker.com/get-started/introduction/build-and-push-first-image/) for instructions on building and pushing a Docker image.  
+
+#### Build the Docker Image  
+
 ```bash
-docker build --platform linux/amd64 -t yourusername/your-image-name:tag .
+cd server
+docker build --platform linux/amd64 -t <DOCKER_USERNAME>/<REPOSITORY_NAME>:<TAG> .
+```  
+
+This builds a Docker image with the specified tag, ensuring compatibility with `linux/amd64`.  
+
+#### Log in to Docker Registry  
+
+```bash
 docker login
-docker push yourusername/your-image-name:tag
 ```  
 
-### 3. Update `dockerURI` and `dockerHash` in the `.env` File  
+Authenticate with the registry before pushing the image.  
 
-Retrieve the image digest:  
+#### Push the Image to the Registry  
 
 ```bash
-docker images --digests | grep yourusername/your-image-name
+docker push <DOCKER_USERNAME>/<REPOSITORY_NAME>:<TAG>
 ```  
+
+This uploads the image to the specified repository.  
+
+---
+
+### 3. Update Docker Information  
+
+Refer to the [Docker documentation](https://docs.docker.com/reference/cli/docker/image/ls/#digests) for details on retrieving the image digest.  
+
+#### Retrieve the Image Digest and Update the `.env` File  
+
+```bash
+docker images --digests | grep <DOCKER_USERNAME>/<REPOSITORY_NAME>
+```  
+
+From the terminal output, locate the row where the **[REPOSITORY]** column matches `<DOCKER_USERNAME>/<REPOSITORY_NAME>`. The value in the **[DIGEST]** column is the Docker image hash (`DOCKER_HASH`), and the **[REPOSITORY]** column provides the `DOCKER_URI`.  
+
+Update the `.env` file with these values:  
+
+```
+DOCKER_URI=<REPOSITORY_NAME>
+DOCKER_HASH=<IMAGE_DIGEST>
+```
 
 ### 4. Register Your Contract with the Sparsity Outpost Contract  
 
