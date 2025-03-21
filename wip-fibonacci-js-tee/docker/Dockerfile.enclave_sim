@@ -1,0 +1,31 @@
+FROM amazonlinux:2
+
+# Install necessary packages
+RUN yum update -y && \
+    yum install -y \
+    python3 \
+    python3-pip \
+    && yum clean all
+
+# Install Python dependencies
+RUN pip3 install --no-cache-dir \
+    flask \
+    cryptography \
+    requests
+
+# Set up working directory
+WORKDIR /app
+
+# Copy enclave application code
+COPY src/enclave/ /app/enclave/
+COPY apps/simple_enclave_app.py /app/enclave/
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV ENV_SETUP=SIM
+ENV ENCLAVE_PORT=8000
+ENV DEBUG=true
+ENV PYTHONPATH=/app
+
+# Command to run when container starts
+CMD ["python3", "/app/enclave/simple_enclave_app.py"] 
