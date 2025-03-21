@@ -17,4 +17,4 @@ request-fib:
 
 fib-result:
 	# check result
-	cast call ${APP_CONTRACT} --rpc-url ${BASE_RPC} "getFibonacci(uint256)" ${NUM}
+	@cast abi-decode "getFibonacci(uint256)(uint256)" $(shell cast call ${APP_CONTRACT} --rpc-url $(BASE_RPC) "getFibonacci(uint256)" ${NUM})
