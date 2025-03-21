@@ -209,42 +209,54 @@ APP_CONTRACT=
 ```
 
 ### 2. Publish the App to a Public Docker Registry  
-#### Build the Docker image  
-Open a new terminal in the **fibonacci-js** directory:
+
+Refer to [Docker's official guide](https://docs.docker.com/get-started/introduction/build-and-push-first-image/) for instructions on building and pushing a Docker image.  
+
+#### Build the Docker Image  
+
 ```bash
 cd server
-docker build --platform linux/amd64 -t <registry>/<repository>:<tag> .
-```
+docker build --platform linux/amd64 -t <DOCKER_USERNAME>/<REPOSITORY_NAME>:<TAG> .
+```  
+
 This builds a Docker image with the specified tag, ensuring compatibility with `linux/amd64`.  
 
-#### Log in to Docker registry  
+#### Log in to Docker Registry  
+
 ```bash
 docker login
-```
-This authenticates you with the registry before pushing the image.  
+```  
 
-#### Push the image to the registry  
+Authenticate with the registry before pushing the image.  
+
+#### Push the Image to the Registry  
+
 ```bash
-docker push <registry>/<repository>:<tag>
-```
+docker push <DOCKER_USERNAME>/<REPOSITORY_NAME>:<TAG>
+```  
+
 This uploads the image to the specified repository.  
 
-For more details, check the official Docker documentation:  
-🔗 [Docker Push Documentation](https://docs.docker.com/engine/reference/commandline/push/)
+---
 
+### 3. Update Docker Information  
 
-### 3. Update the docker info
-Update `dockerURI` and `dockerHash` in `.env` File 
-```
-DOCKER_URI=
-DOCKER_HASH=
-```
+Refer to the [Docker documentation](https://docs.docker.com/reference/cli/docker/image/ls/#digests) for details on retrieving the image digest.  
 
-Retrieve the image digest and fill as `dockerHash`:  
+#### Retrieve the Image Digest and Update the `.env` File  
 
 ```bash
-docker images --digests | grep <registry>/<repository>
+docker images --digests | grep <DOCKER_USERNAME>/<REPOSITORY_NAME>
 ```  
+
+From the terminal output, locate the row where the **[REPOSITORY]** column matches `<DOCKER_USERNAME>/<REPOSITORY_NAME>`. The value in the **[DIGEST]** column is the Docker image hash (`DOCKER_HASH`), and the **[REPOSITORY]** column provides the `DOCKER_URI`.  
+
+Update the `.env` file with these values:  
+
+```
+DOCKER_URI=<REPOSITORY_NAME>
+DOCKER_HASH=<IMAGE_DIGEST>
+```
 
 ### 4. Register Your Contract with the Sparsity Outpost Contract  
 
