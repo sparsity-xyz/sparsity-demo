@@ -25,6 +25,30 @@ The Fibonacci sequence is computed recursively in this demo, which makes it an i
 
 Make sure all services are properly installed and Docker daemon is running before proceeding with the setup.
 
+### Project Structure
+.
+├── README.md                     # Project documentation
+├── contract                      # Smart contract-related files
+│   ├── Makefile                  # Build automation script
+│   ├── Makefile_sepolia          # Build script for Sepolia testnet
+│   ├── contracts                 # Solidity smart contracts
+│   │   ├── Manager.sol           # Contract for managing fleets
+│   │   ├── Outpost.sol           # Contract for registration operations
+│   │   ├── Proxy.sol             # Proxy contract for upgradeability
+│   │   ├── app.sol               # Main application logic contract
+│   │   └── util.sol              # Utility functions for contracts
+│   ├── hardhat.config.ts         # Hardhat configuration for Ethereum development
+│   ├── package.json              # Dependencies and scripts for contract development
+│   └── tsconfig.json             # TypeScript configuration for contract project
+└── server                        # Backend server code
+    ├── Dockerfile                # Docker configuration for containerization
+    ├── Makefile                  # Build automation for the ABCI
+    ├── package.json              # Dependencies and scripts for the backend
+    ├── src                       # Source code for the ABCI core
+    │   └── index.ts              # Entry point for the ABCI core
+    └── tsconfig.json             # TypeScript configuration for the ABCI core
+
+
 ### 1. Build the Docker Image  
 The Docker image contains the ABCI core, encapsulating all computation and execution logic.  
 
