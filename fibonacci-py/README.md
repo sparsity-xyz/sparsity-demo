@@ -132,6 +132,10 @@ make -f Makefile_sepolia register-app
 
 ### 5. Wait for Official Approval from Sparsity  
 
+For **devnet (Base Sepolia)** deployment in this demo, approval is **not required**—it will be approved automatically.  
+
+(For **production**, you need to submit a request in the Sparsity support channel [here](https://discord.gg/PvS5yfPBwH) and contact a support engineer. Once approved, your DApp will be fully deployed.)
+
 ### 6. Call Your Contract  
 
 ```bash

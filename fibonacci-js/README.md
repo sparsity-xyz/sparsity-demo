@@ -168,6 +168,17 @@ To deploy the contract, run:
 make -f Makefile_sepolia deploy
 ```
 
+The deployment files will be stored in:  
+```  
+ignition/deployments/chain-84532  
+```  
+
+During deployment, you could be prompted with the following options in the terminal. Select **"yes"** for both:  
+```  
+✔ Confirm deploy to network base_sepolia (84532)? … yes  
+✔ Confirm reset of deployment "chain-84532" on chain 84532? … yes  
+```  
+
 Afterwards, add the deployed contract address to your `.env` file:
 ```
 APP_CONTRACT=
@@ -221,7 +232,11 @@ make -f Makefile_sepolia register-app
 ```  
 
 ### 5. Wait for Official Approval from Sparsity   
-Submit a request in the Sparsity support channel [here](https://discord.gg/PvS5yfPBwH) and contact a support engineer. Once approved, your DApp will be fully deployed.
+
+For **devnet (Base Sepolia)** deployment in this demo, approval is **not required**—it will be approved automatically.  
+
+(For **production**, you need to submit a request in the Sparsity support channel [here](https://discord.gg/PvS5yfPBwH) and contact a support engineer. Once approved, your DApp will be fully deployed.)
+
 
 ### 6. Call Your Contract  
 
