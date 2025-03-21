@@ -224,10 +224,13 @@ make -f Makefile_sepolia register-app
 Submit a request in the Sparsity support channel [here](https://discord.gg/PvS5yfPBwH) and contact a support engineer. Once approved, your DApp will be fully deployed.
 
 ### 6. Call Your Contract  
+
 In contract directory
 ```bash
 make -f Makefile_sepolia request-fib NUM=30
 ```  
+
+The system will first start the ABCI container and then compute the result, with each step taking several seconds, depending on the allocated machine's performance.
 
 ### 7. Retrieve and Verify the Result  
 
