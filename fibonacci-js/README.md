@@ -167,6 +167,11 @@ To deploy the contract, run:
 ```bash
 make -f Makefile_sepolia deploy
 ```
+To redeploy if you already deployed a contract, run
+```bash
+make -f Makefile_sepolia deploy RESET=true
+```
+The deployment files will be stored in `ignition/deployments/chain-84532`
 
 Afterwards, add the deployed contract address to your `.env` file:
 ```

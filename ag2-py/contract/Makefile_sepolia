@@ -3,8 +3,14 @@ ifneq (,$(wildcard .env))
     export
 endif
 
+RESET ?= false
+
 deploy:
-	npx hardhat ignition deploy ignition/modules/APP.ts --network base_sepolia --reset
+	@if [ "$(RESET)" = "true" ]; then \
+		npx hardhat ignition deploy ignition/modules/APP.ts --network base_sepolia --reset; \
+	else \
+		npx hardhat ignition deploy ignition/modules/APP.ts --network base_sepolia; \
+	fi
 
 register-app:
 	# register app to base_sepolia Sparsity outpost contract
