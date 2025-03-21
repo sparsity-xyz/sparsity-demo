@@ -26,6 +26,7 @@ The Fibonacci sequence is computed recursively in this demo, which makes it an i
 Make sure all services are properly installed and Docker daemon is running before proceeding with the setup.
 
 ### Project Structure
+```
 .
 ├── README.md                     # Project documentation
 ├── contract                      # Smart contract-related files
@@ -47,7 +48,7 @@ Make sure all services are properly installed and Docker daemon is running befor
     ├── src                       # Source code for the ABCI core
     │   └── index.ts              # Entry point for the ABCI core
     └── tsconfig.json             # TypeScript configuration for the ABCI core
-
+```
 
 ### 1. Build the Docker Image  
 The Docker image contains the ABCI core, encapsulating all computation and execution logic.  
