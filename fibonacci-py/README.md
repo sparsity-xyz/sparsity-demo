@@ -130,15 +130,13 @@ docker images --digests | grep yourusername/your-image-name
 make -f Makefile_sepolia register-app
 ```  
 
-### 5. Wait for Official Approval from Sparsity  
-
-### 6. Call Your Contract  
+### 5. Call Your Contract  
 
 ```bash
 make -f Makefile_sepolia request-fib NUM=10
 ```  
 
-### 7. Retrieve and Verify the Result  
+### 6. Retrieve and Verify the Result  
 
 ```bash
 make -f Makefile_sepolia fib-result NUM=10
