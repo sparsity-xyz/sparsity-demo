@@ -1,8 +1,10 @@
 
 # Fibonacci  
 
-This demo showcases interaction with the **Sparsity Platform**. The application computes the Fibonacci sequence, allowing users to submit requests via a smart contract. The contract forwards these requests to the **Sparsity platform**, which processes them using the **App ABCI core** and returns the results back to the smart contract.  
+This demo showcases interaction with the **Sparsity Platform**. The application computes the Fibonacci sequence, allowing users to submit requests via a smart contract. The contract forwards these requests to the Sparsity platform, which processes them using the **App ABCI core** and returns the results back to the smart contract.
 
+The Fibonacci sequence is computed recursively in this demo, which makes it an intensive computation. This type of recursive calculation is not feasible to perform on-chain due to its resource requirements, but it serves as an excellent example of the computational power of Sparsity. By offloading this computation to Sparsity, we demonstrate the platform's ability to handle complex and resource-heavy tasks efficiently.
+ 
 ---
 
 ## Running the App Locally  
@@ -126,7 +128,7 @@ cd contract
 make request-fib NUM=30
 ```   
 
-Wait for the **Bridge** and **Fleet** to process the request. The system will first start the ABCI container and then compute the result within seconds. Once you see a message like this in the Fleet terminal:
+Wait for the **Bridge** and **Fleet** to process the request. The system will first start the ABCI container and then compute the result, each taking several seconds depending on the machine's performance. Once you see a message like this in the Fleet terminal:
 
 ```
 I[2025-03-20|01:14:18.616] Settlement success                           hash=0xc58176e897f9755822bd6001e3e1fdb086d62ffcc846e6c873e4a70323262d4f
@@ -196,8 +198,8 @@ For more details, check the official Docker documentation:
 🔗 [Docker Push Documentation](https://docs.docker.com/engine/reference/commandline/push/)
 
 
-### 3. Update the docker info in `.env` File 
-Update `dockerURI` and `dockerHash`
+### 3. Update the docker info
+Update `dockerURI` and `dockerHash` in `.env` File 
 ```
 DOCKER_URI=
 DOCKER_HASH=
