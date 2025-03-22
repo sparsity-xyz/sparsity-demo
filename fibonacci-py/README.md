@@ -164,20 +164,22 @@ DOCKER_HASH=<IMAGE_DIGEST>
 make -f Makefile_sepolia register-app
 ```  
 
-### 5. Wait for Official Approval from Sparsity  
-
-For **devnet (Base Sepolia)** deployment in this demo, approval is **not required**—it will be approved automatically.  
-
-(For **production**, you need to submit a request in the Sparsity support channel [here](https://discord.gg/PvS5yfPBwH) and contact a support engineer. Once approved, your DApp will be fully deployed.)
-
-### 6. Call Your Contract  
+### 5. Call Your Contract  
 
 ```bash
 make -f Makefile_sepolia request-fib NUM=10
 ```  
 
-### 7. Retrieve and Verify the Result  
+The system will first start the ABCI container and then compute the result, with each step taking several seconds, depending on the allocated machine's performance.
+
+### 6. Retrieve and Verify the Result  
 
 ```bash
 make -f Makefile_sepolia fib-result NUM=10
+```  
+
+**Expected output:**  
+
+```bash
+832040
 ```  
