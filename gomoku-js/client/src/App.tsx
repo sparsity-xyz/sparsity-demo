@@ -9,12 +9,15 @@ import { networks, projectId, metadata, ethersAdapter } from './config'
 import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react'
 import { BrowserProvider, Contract } from 'ethers'
 import ABI from './abi.json'
+import { loadKeys } from './sign'
+import nacl from 'tweetnacl';
 
 const contractAddress = import.meta.env.VITE_APP_ADDRESS
 const NULL_ADDRESS = '0x0000000000000000000000000000000000000000'
 var contract: any = null
 var ethersProvider: BrowserProvider
 var signer: any
+var keys = loadKeys()
 
 const BOARD_GRID_SIZE = 18
 
@@ -133,13 +136,14 @@ const App: React.FC = () => {
           }
 
           const session = await getSession()
-
           if (session.status == 2) {
             if (pairingIntervalRef.current) {
               clearInterval(pairingIntervalRef.current)
               pairingIntervalRef.current = null
             }
-            await loginServer(session.endpoint)
+            const randomNode = session.nodes[Math.floor(Math.random() * session.nodes.length)];
+            console.log("select endpoint", randomNode)
+            await loginServer(randomNode.endpoint)
             setPlayerStatus(PlayerStatus.Gaming)
           }
         } catch (error) {
@@ -189,8 +193,7 @@ const App: React.FC = () => {
   // On Chain Operations:
   async function joinGame() {
     await initContract()
-
-    const tx = await contract.joinOrCreateRoom()
+    const tx = await contract.joinOrCreateRoom(new Uint8Array(keys.publicKey))
     console.log('Transaction joinOrCreateRoom:', tx)
 
     const receipt = await tx.wait()
@@ -293,7 +296,7 @@ const App: React.FC = () => {
           address: address,
           timestamp: Date.now(),
           data: data,
-          signature: new Uint8Array(),
+          signature: nacl.sign.detached(data, keys.secretKey),
         }
         const wsMsg = Message.encode(message).finish()
         newSocket.send(wsMsg)
@@ -304,6 +307,7 @@ const App: React.FC = () => {
           const message = Message.decode(new Uint8Array(buffer))
           if (message.type === MessageType.RESPONSE) {
             const responseArr = BatchState.decode(message.data)
+            console.log("responseArr", responseArr)
             responseArr.states.forEach((x) => {
               if (x.attributes[0].key == 'data') {
                 return
@@ -430,7 +434,7 @@ const App: React.FC = () => {
       address,
       timestamp: Date.now(),
       data: data,
-      signature: new Uint8Array(),
+      signature: nacl.sign.detached(data, keys.secretKey),
     }
     const wsMsg = Message.encode(message).finish()
     socket?.send(wsMsg)
