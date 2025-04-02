@@ -12,7 +12,7 @@ interface APPInterface {
     // outpost will call the function when the session create success
     function callbackSession(uint256 sessionId, CallbackSession memory session) external; 
     // outpost will call the function when the session end
-    function callbackSettlement(uint256 sessionId, bool isRevert, bytes memory data) external;
+    function callbackSettlement(uint256 sessionId, bool isRevert, bool isSlash, bytes memory data) external;
     // outpost will call the function to check if the account is join the session
     function checkAuth(uint256 sessionId, address account) external view returns (bool, bytes memory);
 }
@@ -127,13 +127,17 @@ contract APP is APPInterface {
     /**
      * @dev Outpost callback function: session settlement
      */
-    function callbackSettlement(uint256 sessionId, bool isRevert, bytes memory data) public {
+    function callbackSettlement(uint256 sessionId, bool isRevert, bool slash, bytes memory data) public {
         require(msg.sender == address(_outpostContract), "Only outpost contract can call this function");
         uint256 roomId = sessionId;
 
         if (isRevert) {
             // the sessionId starts from 1
             _sessions[sessionId-1].status = SessionStatus.Revert;
+        }
+        if (slash) {
+            // the sessionId starts from 1
+            _sessions[sessionId-1].status = SessionStatus.Slash;
         } else {
             // the sessionId starts from 1
             _sessions[sessionId-1].status = SessionStatus.Finished;

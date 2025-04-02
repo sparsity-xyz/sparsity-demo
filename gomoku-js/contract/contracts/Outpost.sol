@@ -164,7 +164,7 @@ contract Outpost is Initializable, OwnableUpgradeable {
             }
 
             (bool success, ) = appAddress.call(abi.encodeWithSignature("callbackSettlement(uint256,bool,bool,bytes)", sessionId, allRevert, slash, allResult));
-            require(success, "Session callback to app failed");
+            require(success, "Session callback settlement to app failed");
         }
 
         emit Settle(block.chainid, appAddress, sessionId, end, msg.sender);
