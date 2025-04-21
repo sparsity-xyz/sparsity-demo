@@ -1,0 +1,82 @@
+{
+    "networks": {
+      "base_sepolia_devnet": {
+        "chain_id": 84532,
+        "rpc_url": "https://sepolia.base.org",
+        "explorer_api": "https://api-sepolia.basescan.org/api",
+        "explorer_browser": "https://sepolia.basescan.org/",
+        "secrets": {
+          "secret_name": "devnet",
+          "secret_keys_mapping": {
+            "proxy_admin_private_key": "PROXY_ADMIN_PRIVATE_KEY_EVM",
+            "contract_owner_private_key": "CONTRACT_OWNER_PRIVATE_KEY_EVM"
+          }
+        } 
+      },
+      "ethereum_sepolia_devnet": {
+        "chain_id": 11155111,
+        "rpc_url": "https://sepolia.drpc.org",
+        "explorer_api": "https://api-sepolia.etherscan.io/api",
+        "explorer_browser": "https://sepolia.etherscan.io/",
+        "secrets": {
+          "secret_name": "devnet",
+          "secret_keys_mapping": {
+            "proxy_admin_private_key": "PROXY_ADMIN_PRIVATE_KEY_EVM",
+            "contract_owner_private_key": "CONTRACT_OWNER_PRIVATE_KEY_EVM"
+          }
+        } 
+      },
+      "optimism_sepolia_devnet": {
+        "chain_id": 11155420,
+        "rpc_url": "https://sepolia.optimism.io",
+        "explorer_api": "https://api-sepolia-optimistic.etherscan.io/api",
+        "explorer_browser": "https://sepolia-optimism.etherscan.io/",
+        "secrets": {
+          "secret_name": "devnet",
+          "secret_keys_mapping": {
+            "proxy_admin_private_key": "PROXY_ADMIN_PRIVATE_KEY_EVM",
+            "contract_owner_private_key": "CONTRACT_OWNER_PRIVATE_KEY_EVM"
+          }
+        } 
+      },
+      "base_sepolia_staging": {
+        "chain_id": 84532,
+        "rpc_url": "https://sepolia.base.org",
+        "explorer_api": "https://api-sepolia.basescan.org/api",
+        "explorer_browser": "https://sepolia.basescan.org/",
+        "secrets": {
+          "secret_name": "staging",
+          "secret_keys_mapping": {
+            "proxy_admin_private_key": "PROXY_ADMIN_PRIVATE_KEY_EVM",
+            "contract_owner_private_key": "CONTRACT_OWNER_PRIVATE_KEY_EVM"
+          }
+        } 
+      },
+      "ethereum_sepolia_staging": {
+        "chain_id": 11155111,
+        "rpc_url": "https://sepolia.drpc.org",
+        "explorer_api": "https://api-sepolia.etherscan.io/api",
+        "explorer_browser": "https://sepolia.etherscan.io/",
+        "secrets": {
+          "secret_name": "staging",
+          "secret_keys_mapping": {
+            "proxy_admin_private_key": "PROXY_ADMIN_PRIVATE_KEY_EVM",
+            "contract_owner_private_key": "CONTRACT_OWNER_PRIVATE_KEY_EVM"
+          }
+        } 
+      },
+      "optimism_sepolia_staging": {
+        "chain_id": 11155420,
+        "rpc_url": "https://sepolia.optimism.io",
+        "explorer_api": "https://api-sepolia-optimistic.etherscan.io/api",
+        "explorer_browser": "https://sepolia-optimism.etherscan.io/",
+        "secrets": {
+          "secret_name": "staging",
+          "secret_keys_mapping": {
+            "proxy_admin_private_key": "PROXY_ADMIN_PRIVATE_KEY_EVM",
+            "contract_owner_private_key": "CONTRACT_OWNER_PRIVATE_KEY_EVM"
+          }
+        } 
+      }
+    }
+  }

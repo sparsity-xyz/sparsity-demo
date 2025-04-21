@@ -9,9 +9,9 @@ RUN apt-get update && \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
+RUN pip3 install --upgrade pip
 RUN pip3 install --no-cache-dir \
     flask \
-    flask-sock \
     cryptography \
     boto3 \
     requests
@@ -20,12 +20,7 @@ RUN pip3 install --no-cache-dir \
 WORKDIR /app
 
 # Copy parent application code
-COPY src/parent/ /app/parent/
-
-# Set environment variables
-ENV PYTHONUNBUFFERED=1
-ENV ENV_SETUP=SIM
-ENV PYTHONPATH=/app
+COPY src/parent /app/src/parent
 
 # Command to run when container starts
-CMD ["python3", "/app/parent/parent_app.py"] 
+CMD ["python3", "/app/src/parent/simple_parent_app.py"] 

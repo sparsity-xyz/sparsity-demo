@@ -1,0 +1,35 @@
+FROM amazonlinux:2
+
+# Install Python and necessary packages
+RUN yum update -y && \
+    yum install -y python3 python3-pip procps net-tools git which ca-certificates && \
+    yum clean all
+
+# Update CA certificates
+RUN update-ca-trust force-enable && \
+    update-ca-trust extract
+
+# Set up working directory
+WORKDIR /app
+
+# Copy source code first to get requirements file
+COPY src/enclave/ /app/enclave/
+COPY src/nsm_wrapper/ /app/nsm_wrapper/
+COPY apps/* /app/enclave/
+
+# Install Python requirements
+RUN pip3 install --upgrade pip
+RUN pip3 install --no-cache-dir -r /app/enclave/requirements_real.txt
+
+# Set environment variables
+ENV VSOCK_PORT=5000
+ENV PYTHONUNBUFFERED=1
+ENV LD_LIBRARY_PATH=/usr/lib64b64
+ENV PATH=/app/bin:$PATH
+ENV ENV_SETUP=NITRO
+ENV ENCLAVE_PORT=8000
+ENV AWS_CA_BUNDLE=/etc/pki/tls/certs/ca-bundle.crt
+ENV PYTHONPATH=/app:/app/nsm_wrapper
+
+# Command to run when container starts
+CMD ["python3", "/app/enclave/simple_enclave_app.py"] 

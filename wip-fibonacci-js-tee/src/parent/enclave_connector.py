@@ -82,8 +82,9 @@ class SimulationConnector(EnclaveConnector):
     
     def __init__(self):
         """Initialize the connector with environment variables"""
+        # Use container name for network communication
         self.enclave_host = os.environ.get('ENCLAVE_HOST', 'enclave')
-        self.enclave_port = int(os.environ.get('ENCLAVE_PORT', '8000'))
+        self.enclave_port = int(os.environ.get('ENCLAVE_PORT', '5000'))
         self.base_url = f"http://{self.enclave_host}:{self.enclave_port}"
         logger.info(f"Initialized SimulationConnector with URL={self.base_url}")
         
@@ -135,19 +136,102 @@ class SimulationConnector(EnclaveConnector):
         logger.warning(f"Enclave might not be ready after {max_retries} seconds")
         return False
 
-def create_connector(env_setup: str = None):
+class NitroConnector(EnclaveConnector):
     """
-    Create the appropriate connector based on environment
-    
-    Args:
-        env_setup (str, optional): Environment setup ('SIM' or 'NITRO'). 
-                                 If None, reads from ENV_SETUP environment variable.
-    
-    Returns:
-        BaseEnclaveConnector: The appropriate connector instance
+    Connector for AWS Nitro Enclaves using VSOCK
     """
-    if env_setup is None:
-        env_setup = os.environ.get('ENV_SETUP', 'SIM').upper()
     
-    logger.info(f"Creating SimulationConnector for {env_setup} environment")
-    return SimulationConnector()
+    def __init__(self):
+        """Initialize the connector with environment variables"""
+        self.enclave_cid = int(os.environ.get('ENCLAVE_CID', '16'))
+        self.vsock_port = int(os.environ.get('VSOCK_PORT', '5000'))
+        logger.info(f"Initialized NitroConnector with CID={self.enclave_cid}, PORT={self.vsock_port}")
+    
+    def send_request(self, request_data, timeout=5):
+        """Send a request to the enclave using VSOCK"""
+        logger.info(f"Sending request to enclave: {request_data}")
+        try:
+            # Create a VSOCK socket
+            sock = socket.socket(socket.AF_VSOCK, socket.SOCK_STREAM)
+            sock.settimeout(timeout)
+            
+            # Connect to the enclave
+            logger.info(f"Connecting to enclave CID={self.enclave_cid}, PORT={self.vsock_port}")
+            sock.connect((self.enclave_cid, self.vsock_port))
+            
+            # Convert the request to JSON and encode as bytes
+            request_bytes = json.dumps(request_data).encode('utf-8')
+            request_len = len(request_bytes)
+            
+            # Send the request length followed by the request data
+            logger.info(f"Sending request length: {request_len}")
+            sock.sendall(struct.pack("!I", request_len))
+            sock.sendall(request_bytes)
+            
+            # Receive the response length
+            logger.info("Waiting for response length...")
+            response_len_bytes = sock.recv(4)
+            if not response_len_bytes:
+                logger.error("Empty response length received")
+                sock.close()
+                return {"error": "Empty response from enclave"}
+            
+            response_len = struct.unpack("!I", response_len_bytes)[0]
+            logger.info(f"Response length: {response_len}")
+            
+            # Receive the response data
+            logger.info("Receiving response data...")
+            response_bytes = b""
+            while len(response_bytes) < response_len:
+                chunk = sock.recv(response_len - len(response_bytes))
+                if not chunk:
+                    break
+                response_bytes += chunk
+            
+            # Parse the response
+            response_data = json.loads(response_bytes.decode('utf-8'))
+            logger.info(f"Response received: {response_data}")
+            
+            # Close the socket
+            sock.close()
+            
+            return response_data
+        except Exception as e:
+            logger.error(f"Error sending request: {e}")
+            logger.error(traceback.format_exc())
+            return {"error": str(e)}
+    
+    def wait_for_enclave(self, max_retries=30, retry_interval=1):
+        """Wait for the Nitro Enclave to be ready"""
+        logger.info("Waiting for Nitro Enclave to start...")
+        
+        retries = 0
+        while retries < max_retries:
+            try:
+                # Try to connect to the VSOCK port
+                sock = socket.socket(socket.AF_VSOCK, socket.SOCK_STREAM)
+                sock.settimeout(retry_interval)
+                result = sock.connect_ex((self.enclave_cid, self.vsock_port))
+                sock.close()
+                if result == 0:
+                    logger.info(f"Nitro Enclave is ready after {retries} seconds")
+                    return True
+            except Exception:
+                pass
+            
+            retries += 1
+            time.sleep(retry_interval)
+        
+        logger.warning("Warning: Nitro Enclave might not be ready")
+        return False
+
+def create_connector():
+    """Create the appropriate connector based on environment"""
+    env_setup = os.environ.get('ENV_SETUP', 'SIM').upper()
+    
+    if env_setup == 'NITRO':
+        logger.info("Creating NitroConnector")
+        return NitroConnector()
+    else:
+        logger.info("Creating SimulationConnector")
+        return SimulationConnector() 

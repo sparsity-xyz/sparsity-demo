@@ -1,0 +1,51 @@
+# Get the directory where the current Makefile is located
+SCRIPT_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+SRC_DIR := $(abspath $(SCRIPT_DIR)/..)
+DEST_DIR := $(abspath $(SCRIPT_DIR)/../../../app/demo)
+
+# Target directory array
+TARGET_DIRS := \
+    $(DEST_DIR)/fibonacci-js/contract \
+    $(DEST_DIR)/fibonacci-py/contract \
+    $(DEST_DIR)/gomoku-js/contract \
+    $(DEST_DIR)/ag2-py/contract
+
+# Define the files and directories to copy
+FILES_TO_COPY := \
+    $(SRC_DIR)/.env.devnet.example \
+    $(SRC_DIR)/.env.local.example \
+    $(SRC_DIR)/hardhat.config.ts \
+    $(SRC_DIR)/Makefile \
+    $(SRC_DIR)/Makefile_sepolia
+
+DIRS_TO_COPY := \
+    ignition/modules \
+    test
+
+# Main rule
+all: create_dirs copy_files copy_dirs
+
+# Create target directories
+create_dirs:
+	@echo "Creating target directories..."
+	for dir in $(TARGET_DIRS); do \
+		mkdir -p $$dir; \
+	done
+
+# Copy files
+copy_files:
+	@echo "Copying files..."
+	for dir in $(TARGET_DIRS); do \
+		for file in $(FILES_TO_COPY); do \
+			cp $$file $$dir/; \
+		done; \
+	done
+
+# Copy directories (preserving structure)
+copy_dirs:
+	@echo "Copying directories while preserving structure..."
+	for dir in $(TARGET_DIRS); do \
+		( cd $(SRC_DIR) && tar cf - $(DIRS_TO_COPY) ) | ( cd $$dir && tar xf - ); \
+	done
+
+.PHONY: all create_dirs copy_files copy_dirs

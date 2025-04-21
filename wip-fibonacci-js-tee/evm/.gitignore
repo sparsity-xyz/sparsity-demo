@@ -1,0 +1,45 @@
+# generated files
+*/node_modules
+*/.logs
+
+# env files and API keys
+**.env
+**api_key.json
+
+# Hardhat files
+cache
+artifacts
+
+# TypeChain files
+typechain
+typechain-types
+
+# solidity-coverage files
+coverage
+coverage.json
+
+# Hardhat Ignition default folder for deployments against a local node
+ignition/deployments
+
+# Python generated files
+__pycache__
+*.pyc
+**egg-info**
+**dist**
+
+.vscode
+logs
+*.db
+*audit.json
+.DS_Store
+.idea
+nohup.log
+process.pid
+.data
+bin
+yarn.lock
+.venv
+.cache
+node_modules
+*.log
+*.pid

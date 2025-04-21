@@ -13,336 +13,312 @@ import random
 import string
 import re
 import abc
+from datetime import datetime, timedelta
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.backends import default_backend
+from abc import ABC, abstractmethod
+import cbor2
+from cose.messages import Sign1Message
+from cose.keys import EC2Key
+from cryptography import x509
+from cryptography.x509.oid import NameOID
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import ec
+from typing import Dict, Any, Optional, Tuple, List, Union
+import hashlib
+from Crypto.Signature import PKCS1_PSS
+from Crypto.Hash import SHA384
+from eth_utils import keccak
+from eth_keys import keys
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger('kms-service')
 
-class KmsService(abc.ABC):
-    """
-    Abstract base class for KMS service implementations.
-    This class defines the interface that all KMS service implementations must follow.
-    """
+class KmsService(ABC):
+    """Abstract base class for KMS service."""
     
-    @abc.abstractmethod
-    def init_crypto(self):
-        """Initialize cryptographic components"""
+    def __init__(self):
+        self.private_key = None
+        self.public_key = None
+        self.nsm_util = None
+        self._init_crypto()
+    
+    @abstractmethod
+    def _init_crypto(self):
+        """Initialize cryptographic components."""
         pass
     
-    @abc.abstractmethod
-    def update_credentials(self, credentials):
-        """Update AWS credentials"""
+    @abstractmethod
+    def decrypt_data(self, ciphertext: bytes) -> bytes:
+        """Decrypt data using the private key."""
         pass
     
-    @abc.abstractmethod
-    def decrypt_data(self, encrypted_data, key_id=None, region=None, credentials=None):
-        """Decrypt data using KMS"""
+    @abstractmethod
+    def generate_key(self) -> Tuple[bytes, bytes]:
+        """Generate a new key pair."""
         pass
     
-    @abc.abstractmethod
-    def generate_key(self, key_id=None, key_spec="SYMMETRIC_DEFAULT", region=None, credentials=None):
-        """Generate a new key using KMS"""
+    @abstractmethod
+    def sign_data(self, data: bytes) -> bytes:
+        """Sign data using the private key."""
         pass
     
-    @abc.abstractmethod
-    def generate_random(self, length=32, region=None, credentials=None):
-        """Generate random bytes using KMS"""
-        pass
-    
-    @abc.abstractmethod
-    def generate_attestation(self, nonce=None, region=None, credentials=None):
-        """Generate an attestation document"""
-        pass
-    
-    @abc.abstractmethod
-    def sign_data(self, data, region=None, credentials=None):
-        """Sign data using KMS"""
-        pass
-    
-    def extract_attestation_from_output(self, stdout, stderr):
-        """Extract an attestation document from command output"""
-        combined_output = f"{stdout}\n{stderr}"
-        
-        # Look for JSON-shaped blocks containing PCRs or attestation document
-        try:
-            # Find all potential JSON blocks
-            json_pattern = r'(\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\})'
-            for match in re.finditer(json_pattern, combined_output):
-                json_str = match.group(1)
-                try:
-                    json_obj = json.loads(json_str)
-                    
-                    # Check if this looks like an attestation document
-                    if isinstance(json_obj, dict) and any(key in json_obj for key in ["pcrs", "nonce", "platform", "attestation_doc"]):
-                        logger.info("Found attestation document in command output")
-                        return json_obj
-                except json.JSONDecodeError:
-                    continue
-        except Exception as e:
-            logger.warning(f"Error extracting PCR-containing document: {e}")
-        
-        return None
-class MockKmsService(KmsService):
-    """
-    Mock KMS service for testing and simulation.
-    This service simulates AWS KMS operations without making actual AWS calls.
-    """
-    
-    def __init__(self, enclave_id=None):
-        """
-        Initialize the mock KMS service
+    @abstractmethod
+    def generate_attestation(self, nonce: Optional[bytes] = None) -> bytes:
+        """Generate an attestation document.
         
         Args:
-            enclave_id (str, optional): The enclave ID to use. If not provided, a new one will be generated.
-        """
-        logger.info("Creating MockKmsService")
-        
-        # Generate or use provided enclave ID
-        self.enclave_id = enclave_id or str(uuid.uuid4())
-        logger.info(f"Initialized MockKmsService with enclave ID: {self.enclave_id}")
-        
-        # Initialize mock AWS credentials
-        self.aws_credentials = {
-            "region": "us-east-1",
-            "key_id": None
-        }
-        
-        # Initialize mock cryptographic components
-        self.init_crypto()
-    
-    def update_credentials(self, credentials):
-        """Update the stored AWS credentials"""
-        if not credentials:
-            logger.warning("No credentials provided to update")
-            return False
-            
-        self.aws_credentials["region"] = credentials.get('region', self.aws_credentials["region"])
-        self.aws_credentials["key_id"] = credentials.get('key_id', self.aws_credentials["key_id"])
-        
-        logger.info(f"Updated mock AWS credentials. Region: {self.aws_credentials['region']}, Key ID set: {'Yes' if self.aws_credentials['key_id'] else 'No'}")
-        
-        return True
-    
-    def decrypt_data(self, encrypted_data, key_id=None, region=None, credentials=None):
-        """Mock decryption operation"""
-        # Use class-level credentials if not overridden
-        if key_id is None:
-            key_id = self.aws_credentials["key_id"]
-        if region is None:
-            region = self.aws_credentials["region"]
-            
-        logger.info(f"Mock decrypt operation with key_id: {key_id}")
-        
-        # For mock, we'll just return a placeholder
-        cleartext = base64.b64encode(
-            f"Decrypted with mock KMS: {encrypted_data[:10]}...".encode('utf-8')
-        ).decode('utf-8')
-        
-        return {
-            "operation": "decrypt",
-            "result": {
-                "data": cleartext,
-                "key_id": key_id or "mock-key-id",
-            },
-            "success": True
-        }
-    
-    def generate_key(self, key_id=None, key_spec="AES_256", region=None, credentials=None):
-        """Mock key generation operation"""
-        # Use class-level credentials if not overridden
-        if key_id is None:
-            key_id = self.aws_credentials["key_id"]
-        if region is None:
-            region = self.aws_credentials["region"]
-            
-        logger.info(f"Mock genkey operation with key_id: {key_id}, key_spec: {key_spec}")
-        
-        # Generate a random key based on key_spec
-        key_size = 32  # Default for AES_256
-        if key_spec == "AES_128":
-            key_size = 16
-        
-        # Generate random key material
-        key_bytes = os.urandom(key_size)
-        
-        return {
-            "operation": "genkey",
-            "result": {
-                "plaintext": base64.b64encode(key_bytes).decode('utf-8'),
-                "ciphertext": base64.b64encode(
-                    f"Encrypted key from mock KMS for {key_id}".encode('utf-8')
-                ).decode('utf-8'),
-                "key_id": key_id or "mock-key-id",
-                "key_spec": key_spec
-            },
-            "success": True
-        }
-    
-    def generate_random(self, length=32, region=None, credentials=None):
-        """Mock random generation operation"""
-        # Use class-level region if not overridden
-        if region is None:
-            region = self.aws_credentials["region"]
-            
-        logger.info(f"Mock genrandom operation, length: {length}")
-        
-        # Generate random bytes
-        random_bytes = os.urandom(length)
-        
-        return {
-            "operation": "genrandom",
-            "result": {
-                "data": base64.b64encode(random_bytes).decode('utf-8'),
-                "length": length
-            },
-            "success": True
-        }
-    
-    def generate_attestation(self, nonce=None, region=None, credentials=None):
-        """Generate a mock attestation document for testing"""
-        # Use class-level region if not overridden
-        if region is None:
-            region = self.aws_credentials["region"]
-            
-        if nonce is None:
-            nonce = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
-        
-        logger.info(f"Generating mock attestation with nonce: {nonce}")
-        
-        # Get current timestamp
-        current_time = int(time.time())
-        
-        # Check if we're in debug mode
-        debug_mode = os.environ.get('DEBUG', 'false').lower() in ('true', '1', 'yes')
-        
-        # Create PCR values - in debug mode, PCR0 would be all zeros
-        pcr0 = base64.b64encode(bytes(32)).decode('utf-8') if debug_mode else base64.b64encode(os.urandom(32)).decode('utf-8')
-        
-        # Create a realistic mock attestation document
-        attestation_doc = {
-            # Document metadata
-            "version": "1.0",
-            "enclave_id": self.enclave_id,
-            
-            # Timestamps for validity period
-            "timestamp": current_time,
-            "not_before": current_time - 300,  # Valid from 5 minutes ago
-            "not_after": current_time + 86400,  # Valid for 24 hours
-            
-            # Enclave measurements (PCRs)
-            "pcrs": {
-                "PCR0": pcr0,  # Image measurement (all zeros in debug mode)
-                "PCR1": base64.b64encode(os.urandom(32)).decode('utf-8'),  # Kernel measurement
-                "PCR2": base64.b64encode(os.urandom(32)).decode('utf-8'),  # Boot measurement
-                "PCR3": base64.b64encode(os.urandom(32)).decode('utf-8'),  # Additional measurement
-            },
-            
-            # Platform information
-            "platform": {
-                "instance_id": f"i-{uuid.uuid4().hex[:8]}",
-                "instance_type": "c5.xlarge",
-                "region": region,
-                "platform_version": "1.0"
-            },
-            
-            # Nonce provided by the caller for freshness
-            "nonce": nonce,
-        }
-        
-        # Generate a proper base64-encoded signature
-        signature_data = json.dumps(attestation_doc, sort_keys=True).encode('utf-8')
-        signature = self.sign_data(signature_data)
-        attestation_doc["signature"] = signature
-        
-        # Create the full response with the attestation document and public key
-        response = {
-            "attestation_doc": attestation_doc,
-            "public_key": self.public_key,  # Use the actual PEM-formatted public key
-            "timestamp": current_time,
-            "enclave_id": self.enclave_id,
-            "is_mock": True
-        }
-        
-        return response
-
-    def init_crypto(self):
-        """Initialize mock cryptographic components"""
-        # Generate a mock RSA key pair for signing
-        self.private_key = rsa.generate_private_key(
-            public_exponent=65537,
-            key_size=2048,
-            backend=default_backend()
-        )
-        
-        # Get the public key in PEM format
-        self.public_key = self.private_key.public_key().public_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PublicFormat.SubjectPublicKeyInfo
-        ).decode('utf-8')
-        
-        logger.info("Initialized mock cryptographic components")
-        
-        return {
-            "public_key_pem": self.public_key,
-            "nsm_available": False
-        }
-    
-    def sign_data(self, data, region=None, credentials=None):
-        """
-        Sign data using the mock private key
-        
-        Args:
-            data: Data to sign (bytes)
-            region: AWS region (optional, ignored in mock)
-            credentials: AWS credentials (optional, ignored in mock)
+            nonce: Optional nonce to include in the attestation document.
             
         Returns:
-            str: Base64-encoded signature
+            bytes: The attestation document
         """
+        pass
+
+class RealKmsService(KmsService):
+    """Real KMS service implementation using AWS KMS."""
+    
+    def _init_crypto(self):
+        """Initialize cryptographic components."""
         try:
-            # If no private key is available, generate one
-            if not hasattr(self, 'private_key'):
-                self.init_crypto()
-            
-            # Sign the data using the private key
-            if hasattr(self, 'private_key'):
-                from cryptography.hazmat.primitives import hashes
-                from cryptography.hazmat.primitives.asymmetric import padding
-                
-                signature = self.private_key.sign(
-                    data,
-                    padding.PSS(
-                        mgf=padding.MGF1(hashes.SHA256()),
-                        salt_length=padding.PSS.MAX_LENGTH
-                    ),
-                    hashes.SHA256()
+            from nsm_wrapper.nsm_util import NSMUtil
+            self.nsm_util = NSMUtil()
+            logger.info("Successfully initialized NSMUtil")
+        except Exception as e:
+            logger.error(f"Failed to initialize NSMUtil: {e}")
+            raise
+    
+    def decrypt_data(self, ciphertext: bytes) -> bytes:
+        """Decrypt data using AWS KMS."""
+        return self.nsm_util.decrypt(ciphertext)
+    
+    def generate_key(self) -> Tuple[bytes, bytes]:
+        """Generate a new key pair using AWS KMS."""
+        return self.nsm_util.generate_key()
+    
+    def sign_data(self, data: bytes) -> bytes:
+        """Sign data using AWS KMS."""
+        return self.nsm_util.sign_data(data)
+    
+    def generate_attestation(self, nonce: Optional[bytes] = None) -> bytes:
+        """Generate an attestation document using the NSM."""
+        attestation_doc = self.nsm_util.get_attestation_doc()
+        if not attestation_doc:
+            raise RuntimeError("Failed to get attestation document from NSM")
+        return attestation_doc
+
+class MockKmsService(KmsService):
+    """Mock KMS service implementation for testing."""
+    
+    def _init_crypto(self):
+        """Initialize mock cryptographic components using deterministic keys."""
+        # In the container, keys are at /app/keys/
+        keys_dir = '/app/keys'
+        key_info_path = os.path.join(keys_dir, 'key_info.json')
+        
+        if not os.path.exists(key_info_path):
+            logger.error(f"Mock keys not found at {keys_dir}. Please ensure keys are mounted correctly.")
+            raise RuntimeError(f"Mock keys not found at {keys_dir}")
+        
+        try:
+            # Load the enclave private key - should be RSA key for NSM compatibility
+            with open(os.path.join(keys_dir, 'enclave_key.pem'), 'rb') as f:
+                key_data = f.read()
+                self.private_key = serialization.load_pem_private_key(
+                    key_data,
+                    password=None
                 )
-                
-                return base64.b64encode(signature).decode('utf-8')
+            self.public_key = self.private_key.public_key()
             
-            # Fall back to a mock signature if no private key is available
-            logger.warning("No private key available for mock signing")
-            return base64.b64encode(b"mock_signature").decode('utf-8')
+            # Load the enclave app key for signing data
+            with open(os.path.join(keys_dir, 'enclave_app_key.pem'), 'rb') as f:
+                key_data = f.read()
+                self.app_private_key = serialization.load_pem_private_key(
+                    key_data,
+                    password=None
+                )
+            self.app_public_key = self.app_private_key.public_key()
+            
+            # Verify the key is an RSA key
+            if not isinstance(self.private_key, rsa.RSAPrivateKey):
+                logger.warning("Loaded key is not an RSA key. NSM uses RSA keys for signing.")
+            
+            # Load certificates
+            with open(os.path.join(keys_dir, 'root_cert.pem'), 'rb') as f:
+                self.root_cert = x509.load_pem_x509_certificate(f.read())
+            with open(os.path.join(keys_dir, 'intermediate1_cert.pem'), 'rb') as f:
+                self.int1_cert = x509.load_pem_x509_certificate(f.read())
+            with open(os.path.join(keys_dir, 'intermediate2_cert.pem'), 'rb') as f:
+                self.int2_cert = x509.load_pem_x509_certificate(f.read())
+            with open(os.path.join(keys_dir, 'enclave_cert.pem'), 'rb') as f:
+                self.enclave_cert = x509.load_pem_x509_certificate(f.read())
+                
+            logger.info("Successfully loaded mock keys and certificates")
+        except Exception as e:
+            logger.error(f"Failed to load mock keys: {e}")
+            raise
+    
+    def decrypt_data(self, ciphertext: bytes) -> bytes:
+        """Decrypt data using ECIES with SECP256K1."""
+        try:
+            # Extract the raw private key bytes in the format expected by eciespy
+            private_key_hex = hex(self.private_key.private_numbers().private_value)[2:]
+            if len(private_key_hex) < 64:  # Ensure proper padding
+                private_key_hex = '0' * (64 - len(private_key_hex)) + private_key_hex
+                
+            # Decrypt using ECIES
+            plaintext = eciespy.decrypt(private_key_hex, ciphertext)
+            return plaintext
+        except Exception as e:
+            logger.error(f"Error in ECIES decryption: {e}")
+            logger.error(traceback.format_exc())
+            raise
+    
+    def generate_key(self) -> Tuple[bytes, bytes]:
+        """Generate a deterministic SECP256K1 key pair for Ethereum compatibility."""
+        # Use deterministic seed for testing predictability
+        seed = f"session-{int(time.time())}"
+        
+        # Generate a SECP256K1 key
+        private_key = ec.generate_private_key(
+            ec.SECP256K1(),
+            default_backend()
+        )
+        
+        # Export the keys in the correct format
+        private_bytes = private_key.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=serialization.NoEncryption()
+        )
+        
+        public_bytes = private_key.public_key().public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo
+        )
+        
+        return private_bytes, public_bytes
+    
+    def sign_data(self, data: bytes) -> bytes:
+        """Sign data using ECDSA with secp256k1 (Ethereum compatible)."""
+        try:
+            # Extract raw private key bytes for eth_keys compatibility
+            private_bytes = self.app_private_key.private_numbers().private_value.to_bytes(32, byteorder='big')
+            eth_private_key = keys.PrivateKey(private_bytes)
+            
+            # Generate hash using keccak256 directly on the raw bytes
+            message_hash = keccak(data)
+            
+            # Sign the message hash using eth_keys
+            signature = eth_private_key.sign_msg_hash(message_hash)
+            sig_bytes = signature.to_bytes()
+            
+            # Extract components
+            r = sig_bytes[:32]
+            s = sig_bytes[32:64]
+            v = sig_bytes[64:]
+            v_int = int.from_bytes(v, byteorder='big')
+            
+            # For Ethereum compatibility, make sure v is 27/28 instead of 0/1
+            if v_int < 27 and v_int <= 1:
+                v_adjusted = bytes([v_int + 27])
+                ethereum_sig = r + s + v_adjusted
+            else:
+                ethereum_sig = sig_bytes
+            
+            # Return the complete signature
+            return ethereum_sig
             
         except Exception as e:
-            logger.error(f"Error in mock signing: {e}")
+            logger.error(f"Error in secp256k1 signing: {e}")
             logger.error(traceback.format_exc())
-            # Return a mock signature in case of error
-            return base64.b64encode(b"mock_signature_error").decode('utf-8')
+            raise
+    
+    def generate_attestation(self, nonce: Optional[bytes] = None) -> bytes:
+        """Generate a deterministic mock attestation document that matches NSM format."""
+        # Create deterministic PCRs
+        pcrs = {}
+        for i in range(16):
+            pcr_data = f"deterministic-pcr-{i}".encode('utf-8')
+            pcr_hash = hashlib.sha384(pcr_data).digest()
+            pcrs[i] = pcr_hash
+        
+        # Create module_id as hex string
+        module_id = hashlib.sha256(b"mock-module-id").hexdigest()
+        
+        # Create attestation document payload
+        current_time = int(time.time() * 1000)  # Convert to milliseconds
+        payload = {
+            "module_id": module_id,  # Now a hex string instead of bytes
+            "digest": "SHA384",
+            "timestamp": current_time,
+            "pcrs": pcrs,
+            "certificate": self.enclave_cert.public_bytes(serialization.Encoding.DER),
+            "cabundle": [
+                self.root_cert.public_bytes(serialization.Encoding.DER),
+                self.int1_cert.public_bytes(serialization.Encoding.DER),
+                self.int2_cert.public_bytes(serialization.Encoding.DER)
+            ],
+            "public_key": self.app_public_key.public_bytes(
+                encoding=serialization.Encoding.DER,
+                format=serialization.PublicFormat.SubjectPublicKeyInfo
+            ),
+            "user_data": None,
+            "nonce": None
+        }
+        
+        # Convert payload to CBOR
+        cbor_payload = cbor2.dumps(payload)
+        
+        # Create COSE Sign1 message with deterministic kid
+        protected_header = {
+            1: -35  # alg: ES384
+        }
+        
+        # Get the raw private key value
+        private_key_value = self.private_key.private_numbers().private_value.to_bytes(48, 'big')
+        
+        # Create a COSE key from the raw bytes
+        cose_key = EC2Key(
+            crv=2,  # P-384
+            d=private_key_value,
+            x=self.public_key.public_numbers().x.to_bytes(48, 'big'),
+            y=self.public_key.public_numbers().y.to_bytes(48, 'big')
+        )
+        
+        # Create and sign the COSE_Sign1 message
+        msg = Sign1Message(
+            phdr=protected_header,
+            payload=cbor_payload
+        )
+        msg.key = cose_key
+        
+        # The NSM format expects: [protected headers, unprotected headers, payload, signature]
+        # We need to manually construct this format
+        signed_msg = msg.encode()
+        
+        # Decode the signed message to get its components
+        decoded = cbor2.loads(signed_msg)
+        
+        # Construct the final NSM format and tag it with 0xD2 (18)
+        final_doc = cbor2.dumps(cbor2.CBORTag(18, [
+            decoded.value[0],  # protected headers
+            decoded.value[1],  # unprotected headers
+            cbor_payload,      # payload
+            decoded.value[3]   # signature
+        ]))
+        
+        return final_doc
 
-def create_kms_service(env_setup: str = None):
+def create_kms_service(env_setup=None):
     """
     Create the appropriate KMS service based on environment
     
     Args:
-        env_setup (str, optional): Environment setup ('SIM' or 'NITRO'). 
-                                 If None, reads from ENV_SETUP environment variable.
-    
-    Returns:
-        KmsService: The appropriate KMS service instance
+        env_setup (str, optional): Environment setup string ('NITRO' or 'SIM').
+            If None, will use ENV_SETUP environment variable.
     """
     if env_setup is None:
         env_setup = os.environ.get('ENV_SETUP', 'SIM').upper()
