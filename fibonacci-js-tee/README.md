@@ -24,7 +24,7 @@ docker build -t nitro-enclave-sim:latest -f docker/Dockerfile.enclave_sim .
 
 1. Under the root directory, copy over the `.env.example` file to `.env` to set up basic environment variables for fleet and bridge.
 1. Under `evm/`, copy over `.env.local.example` to `.env`.
-2. Make any necessary changes in the `.env` file. (The only variable you should change is `DOCKER_URI` and `APP_CONTRACT`, which is the docker URI to your customized application and address to your app contract on the EVM node) By default, you shouldn't need to change anything.
+2. Make any necessary changes in the `.env` file. (The only variable you should change is `DOCKER_URI`, which is the docker URI to your customized application) By default, you shouldn't need to change anything.
 3. Under `evm/`, install hardhat using the following command
 ```
 npm install hardhat
@@ -35,16 +35,11 @@ echo "127.0.0.1 host.docker.internal" | sudo tee -a /etc/hosts
 ```
 
 ## Test Run to see everything works
-1. Under `evm/` run the following code to start the EVM node and set up the contracts. If you customized `APP.sol`, you might want to check the address is deployed in the correct address in `.env`
+1. Under `evm/` run the following code to start the EVM node and set up the contracts. 
 ```
 make node
 ```
 
- - Inside the copied over evm/.env file you'll see the following environment variable.
-```
-## app
-APP_CONTRACT=0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9
-```
 2. In another terminal, run the bridge container
 ```
 make start-bridge
@@ -60,18 +55,22 @@ make start-fleet
 
  - Sample output when the node is finished setting up the environment:
 ```
-    Proxy interaction
-manager 0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9
-BridgeStatusChanged Signature: 
-...
-Settle Signature: 0x25630e65672133ef8cb6e65a6590e1b6758b74ee8e3db00433012e9df8ac1a23
-      ✔ Output
+[ NitroValidatorModule ] successfully deployed 🚀
 
+Deployed Addresses
 
-  2 passing (107ms)
+OutpostProxyModule#Outpost - 0x5FbDB2315678afecb367f032d93F642f64180aa3
+OutpostProxyModule#TransparentUpgradeableProxy - 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
+OutpostProxyModule#ProxyAdmin - 0xCafac3dD18aC6c6e92c921884f9E4176737C052c
+OutpostModule#Outpost - 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
+ManagerProxyModule#Manager - 0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0
+ManagerProxyModule#TransparentUpgradeableProxy - 0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9
+ManagerProxyModule#ProxyAdmin - 0xd8058efe0198ae9dD7D563e1b4938Dcbc86A1F81
+ManagerModule#Manager - 0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9
+appModule#APP - 0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9
+certManagerModule#CertManager - 0x5FC8d32690cc91D4c39d9d3abcBD16989F875707
+NitroValidatorModule#NitroValidator - 0x0165878A594ca255338adfa4d48449f69242Eb8F
 
-make[1]: Leaving directory '/home/yl/Desktop/work/demo-sparsity/wip-fibonacci-js-tee/evm'
-[SPARSITY] Local environment setup complete. Watching logs...
 
 ```
 
