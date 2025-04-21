@@ -17,9 +17,6 @@ PID_FILE := process.pid
 # Define log prefix for our commands
 LOG_PREFIX := "[SPARSITY]"
 
-# Default attestation URL for nitro enclave testing
-ATTESTATION_URL ?= http://43.201.52.244:8001/attest
-
 .PHONY: node deploy test-proxy send-settle-eth new-session authin authout session-result fib-result register-app approve-app approver upgrade-outpost er clear node-tee register-app-tee deploy-tee abi-tee
 
 node:

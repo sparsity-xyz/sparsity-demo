@@ -1,7 +1,7 @@
 FLEET_URI ?= sparsityxyz/fleet:20250421141233
 BRIDGE_URI ?= sparsityxyz/bridge:20250421142445
 
-.PHONY: help build-sim run-sim stop-sim clean-sim logs-sim shell-parent shell-enclave test-sim status-sim build-enclave package-enclave deploy-enclave setup-ec2 generate-aws-credentials
+.PHONY: fleet-clear-er-ports fleet-start bridge-start
 
 fleet-clear-er-ports:
 	@PORT_START=30000; \

@@ -2,7 +2,7 @@ services:
   bridge:
     image: sparsityxyz/bridge:20250420230231
     env_file:
-      - .env.bridge
+      - .env
     environment:
       - RPC_URL=http://172.17.0.1:8545
     extra_hosts:
@@ -12,7 +12,7 @@ services:
     image: ${FLEET_URI}
     command: fleet init --home /app/.fleet --local
     env_file:
-      - .env.fleet
+      - .env
     environment:
       - RPC_URL=http://172.17.0.1:8545
     volumes:
@@ -23,7 +23,7 @@ services:
     image: ${FLEET_URI}
     command: fleet register --home /app/.fleet --ip "172.17.0.1" --exec-types ${EXEC_TYPES} --counts ${PROVIDER_COUNTS}
     env_file:
-      - .env.fleet
+      - .env
     environment:
       - RPC_URL=http://172.17.0.1:8545
     volumes:
@@ -36,7 +36,7 @@ services:
     image: ${FLEET_URI}
     command: fleet run --home /app/.fleet --local --exec-types ${EXEC_TYPES} --counts ${PROVIDER_COUNTS}
     env_file:
-      - .env.fleet
+      - .env
     environment:
       - RPC_URL=http://172.17.0.1:8545
       - DOCKER_HOST=unix:///var/run/docker.sock
@@ -48,7 +48,3 @@ services:
     privileged: true
     depends_on:
       - fleet-register
-
-# Optionally, define the shared data volume (if you want to use a named volume)
-# volumes:
-#   fleet-data:
