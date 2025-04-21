@@ -24,7 +24,7 @@ docker build -t nitro-enclave-sim:latest -f docker/Dockerfile.enclave_sim .
 
 1. Under the root directory, copy over the `.env.example` file to `.env` to set up basic environment variables for fleet and bridge.
 1. Under `evm/`, copy over `.env.local.example` to `.env`.
-2. Make any necessary changes in the `.env` file. (The only variable you should change is `DOCKER_URI`, which is the docker URI to your customized application)
+2. Make any necessary changes in the `.env` file. (The only variable you should change is `DOCKER_URI` and `APP_CONTRACT`, which is the docker URI to your customized application and address to your app contract on the EVM node) By default, you shouldn't need to change anything.
 3. Under `evm/`, install hardhat using the following command
 ```
 npm install hardhat
