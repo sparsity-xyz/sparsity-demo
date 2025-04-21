@@ -38,5 +38,4 @@ const outpostModule = buildModule("OutpostModule", (m) => {
     return { outpost, proxy, proxyAdmin };
 });
 
-
 export default outpostModule;

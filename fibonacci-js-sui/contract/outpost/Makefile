@@ -49,10 +49,10 @@ register-app:
 	. $(PWD)/.env; \
 	set +a; \
 	if [ "$(verbose)" = "true" ]; then \
-		result=$$(sui client call --package ${OUTPOST_ADDR} --module outpost --function register_app --args ${OUTPOST_APP_REGISTRY} ${APP_ADDR} ${APP_STATE} 1 sparsityxyz/abci-fib sha256:d10e26f90061400174e3f48f16da183c5ea2e2595c1fb050edfae1cdd4322f21 --json); \
+		result=$$(sui client call --package $$OUTPOST_ADDR --module outpost --function register_app --args $$OUTPOST_APP_REGISTRY $$APP_ADDR $$APP_STATE 1 sparsityxyz/abci-fib sha256:d10e26f90061400174e3f48f16da183c5ea2e2595c1fb050edfae1cdd4322f21 --json); \
 		echo "$$result"; \
 	else \
-		result=$$(sui client call --package ${OUTPOST_ADDR} --module outpost --function register_app --args ${OUTPOST_APP_REGISTRY} ${APP_ADDR} ${APP_STATE} 1 sparsityxyz/abci-fib sha256:d10e26f90061400174e3f48f16da183c5ea2e2595c1fb050edfae1cdd4322f21 --json 2>/dev/null); \
+		result=$$(sui client call --package $$OUTPOST_ADDR --module outpost --function register_app --args $$OUTPOST_APP_REGISTRY $$APP_ADDR $$APP_STATE 1 sparsityxyz/abci-fib sha256:d10e26f90061400174e3f48f16da183c5ea2e2595c1fb050edfae1cdd4322f21 --json 2>/dev/null); \
 	fi; \
 	status=$$(echo "$$result" | jq -r '.effects.status.status'); \
 	if [ "$$status" = "success" ]; then \
@@ -75,10 +75,10 @@ approve-app:
 	. $(PWD)/.env; \
 	set +a; \
 	if [ "$(verbose)" = "true" ]; then \
-		result=$$(sui client call --package ${OUTPOST_ADDR} --module outpost --function approve_app --args ${OUTPOST_ADMIN_CAP} ${OUTPOST_APP_REGISTRY} ${APP_ADDR} --json); \
+		result=$$(sui client call --package $$OUTPOST_ADDR --module outpost --function approve_app --args $$OUTPOST_ADMIN_CAP $$OUTPOST_APP_REGISTRY $$APP_ADDR --json); \
 		echo "$$result"; \
 	else \
-		result=$$(sui client call --package ${OUTPOST_ADDR} --module outpost --function approve_app --args ${OUTPOST_ADMIN_CAP} ${OUTPOST_APP_REGISTRY} ${APP_ADDR} --json 2>/dev/null); \
+		result=$$(sui client call --package $$OUTPOST_ADDR --module outpost --function approve_app --args $$OUTPOST_ADMIN_CAP $$OUTPOST_APP_REGISTRY $$APP_ADDR --json 2>/dev/null); \
 	fi; \
 	status=$$(echo "$$result" | jq -r '.effects.status.status'); \
 	if [ "$$status" = "success" ]; then \
@@ -101,10 +101,10 @@ new-session:
 	. $(PWD)/.env; \
 	set +a; \
 	if [ "$(verbose)" = "true" ]; then \
-		result=$$(sui client call --package ${APP_ADDR} --module app --function create_session --args ${OUTPOST_APP_REGISTRY} ${OUTPOST_APP_SESSION} ${APP_ADDR} ${APP_STATE} 11 --json); \
+		result=$$(sui client call --package $$APP_ADDR --module app --function create_session --args $$OUTPOST_APP_REGISTRY $$OUTPOST_APP_SESSION $$APP_ADDR $$APP_STATE 11 --json); \
 		echo "$$result"; \
 	else \
-		result=$$(sui client call --package ${APP_ADDR} --module app --function create_session --args ${OUTPOST_APP_REGISTRY} ${OUTPOST_APP_SESSION} ${APP_ADDR} ${APP_STATE} 11 --json 2>/dev/null); \
+		result=$$(sui client call --package $$APP_ADDR --module app --function create_session --args $$OUTPOST_APP_REGISTRY $$OUTPOST_APP_SESSION $$APP_ADDR $$APP_STATE 11 --json 2>/dev/null); \
 	fi; \
 	status=$$(echo "$$result" | jq -r '.effects.status.status'); \
 	if [ "$$status" = "success" ]; then \
@@ -127,10 +127,10 @@ session-result:
 	. $(PWD)/.env; \
 	set +a; \
 	if [ "$(verbose)" = "true" ]; then \
-		result=$$(sui client call --package ${OUTPOST_ADDR} --module outpost --function get_session_info --args ${OUTPOST_APP_SESSION} ${APP_ADDR} 1 --dev-inspect --json); \
+		result=$$(sui client call --package $$OUTPOST_ADDR --module outpost --function get_session_info --args $$OUTPOST_APP_SESSION $$APP_ADDR 1 --dev-inspect --json); \
 		echo "$$result"; \
 	else \
-		result=$$(sui client call --package ${OUTPOST_ADDR} --module outpost --function get_session_info --args ${OUTPOST_APP_SESSION} ${APP_ADDR} 1 --dev-inspect --json 2>/dev/null); \
+		result=$$(sui client call --package $$OUTPOST_ADDR --module outpost --function get_session_info --args $$OUTPOST_APP_SESSION $$APP_ADDR 1 --dev-inspect --json 2>/dev/null); \
 	fi; \
 	status=$$(echo "$$result" | jq -r '.effects.status.status'); \
 	if [ "$$status" = "success" ]; then \

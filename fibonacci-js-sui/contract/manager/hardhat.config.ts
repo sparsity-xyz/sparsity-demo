@@ -6,50 +6,95 @@ import '@nomicfoundation/hardhat-verify';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const accounts = [
-  process.env.DEPLOYER_PRIVATE_KEY || "",
-].filter(Boolean) as string[];
+if (!process.env.PROXY_ADMIN_PRIVATE_KEY) {
+  throw new Error("PROXY_ADMIN_PRIVATE_KEY environment variable is not set");
+}
+if (!process.env.CONTRACT_OWNER_PRIVATE_KEY) {
+  throw new Error("CONTRACT_OWNER_PRIVATE_KEY environment variable is not set");
+}
 
+const accounts = [
+  process.env.PROXY_ADMIN_PRIVATE_KEY,
+  process.env.CONTRACT_OWNER_PRIVATE_KEY
+];
+
+const customChainId = Number(process.env.CHAIN_ID);
 
 const config: HardhatUserConfig = {
-  solidity: "0.8.27",
+  solidity: {
+    compilers: [
+      {
+        version: "0.8.27", // your default version
+        settings: {
+          optimizer: {
+            enabled: false // default is not optimized
+          }
+        }
+      }
+    ],
+    overrides: {
+      // Path to the specific contract you want to optimize
+      "contracts/CertManager.sol": {
+        version: "0.8.27",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200
+          }
+        }
+      },
+      "contracts/NitroValidator.sol": {
+        version: "0.8.27",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200
+          }
+        }
+      },
+      "contracts/Outpost.sol": {
+        version: "0.8.27",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200
+          }
+        }
+      }
+    }
+  },
+  paths: {
+    sources: "./contracts",
+    tests: "./test",
+    cache: "./cache",
+    artifacts: "./artifacts"
+  },
   networks: {
     hardhat: {
-      chainId: Number(process.env.HARDHAT_CHAIN_ID ?? 31337),
+      chainId: 31337,
       mining: {
         auto: false,
         interval: 1000
       },
+      blockGasLimit: 120000000,
+      allowUnlimitedContractSize: true
     },
-    optimism_sepolia: {
-      url: process.env.OPTIMISM_RPC || "",
+    "chain": {
+      url: process.env.CHAIN_RPC || "",
       accounts: accounts,
     },
-    base_sepolia: {
-      url: process.env.BASE_RPC || "",
-      accounts: accounts,
-    }
   },
   etherscan: {
     apiKey: {
-      base_sepolia: process.env.ETHERSCAN_API_KEY_BASE || "",
-      optimism_sepolia: process.env.ETHERSCAN_API_KEY_OPTIMISM || "",
+      "chain": process.env.ETHERSCAN_API_KEY || "",
     },
     customChains: [
       {
-        network: "base_sepolia",
-        chainId: 84532,
+        network: "chain",
+        chainId: customChainId,
         urls: {
-          apiURL: "https://api-sepolia.basescan.org/api",
-          browserURL: "https://sepolia.basescan.org/"
-        }
-      },
-      {
-        network: "optimism_sepolia",
-        chainId: 11155420,
-        urls: {
-          apiURL: "https://api-sepolia-optimistic.etherscan.io/api",
-          browserURL: "https://sepolia-optimism.etherscan.io/"
+          apiURL: process.env.CHAIN_EXPLORER_API || "",
+          browserURL: process.env.CHAIN_EXPLORER_BROWSER || ""
         }
       }
     ]
@@ -58,5 +103,7 @@ const config: HardhatUserConfig = {
     enabled: true
   }
 };
+
+
 
 export default config;

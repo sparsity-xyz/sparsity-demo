@@ -1,4 +1,3 @@
-
 # Fibonacci  
 
 This demo showcases interaction with the **Sparsity Platform**. The application computes the Fibonacci sequence, allowing users to submit requests via a smart contract. The contract forwards these requests to the Sparsity platform, which processes them using the **App ABCI core** and returns the results back to the smart contract.
@@ -12,7 +11,8 @@ The Fibonacci sequence is computed recursively in this demo, which makes it an i
 ### Prerequisites  
 - **OS:** macOS or Linux (Windows users should use WSL)
 - **Dependencies:**  
-  - [Foundry](https://book.getfoundry.sh/): Ethereum development toolchain for smart contract development
+  - [Foundry](https://book.getfoundry.sh/): Ethereum development toolchain for smart contract development. This is used for manager contract simulation.
+  - [Sui CLI](https://docs.sui.io/guides/developer/getting-started/sui-install). This is for outpost and app contracts simulation. 
     ```bash
     curl -L https://foundry.paradigm.xyz | bash
     foundryup
@@ -29,43 +29,61 @@ Make sure all services are properly installed and Docker daemon is running befor
 ### Project Structure
 ```
 .
-├── README.md                     # Project documentation
-├── contract                      # Smart contract-related files
-│   ├── Makefile                  # Build automation script
-│   ├── Makefile_sepolia          # Build script for Sepolia testnet
-│   ├── contracts                 # Solidity smart contracts
-│   │   ├── Manager.sol           # Contract for managing fleets
-│   │   ├── Outpost.sol           # Contract for registration operations
-│   │   ├── Proxy.sol             # Proxy contract for upgradeability
-│   │   ├── app.sol               # Main application logic contract
-│   │   └── util.sol              # Utility functions for contracts
-│   ├── hardhat.config.ts         # Hardhat configuration for Ethereum development
-│   ├── package.json              # Dependencies and scripts for contract development
-│   └── tsconfig.json             # TypeScript configuration for contract project
-└── server                        # Backend server code
-    ├── Dockerfile                # Docker configuration for containerization
-    ├── Makefile                  # Build automation for the ABCI
-    ├── package.json              # Dependencies and scripts for the backend
-    ├── src                       # Source code for the ABCI core
-    │   └── index.ts              # Entry point for the ABCI core
-    └── tsconfig.json             # TypeScript configuration for the ABCI core
+├── README.md                           # Project documentation
+
+├── contract                            # Smart contract-related files
+│   ├── manager                         # Ethereum manager contract
+│   │   ├── Makefile                    # Build automation script
+│   │   ├── Makefile_sepolia            # Build script for Sepolia testnet
+│   │   ├── contracts                   # Solidity smart contracts
+│   │   │   ├── Manager.sol             # Contract for managing fleets
+│   │   │   ├── Proxy.sol               # Proxy contract for upgradeability
+│   │   │   └── util.sol                # Utility functions for contracts
+│   │   ├── hardhat.config.ts           # Hardhat configuration for Ethereum development
+│   │   ├── package.json                # Dependencies and scripts for contract development
+│   │   └── tsconfig.json               # TypeScript configuration for contract project
+│   └── outpost                         # Sui outpost and app contracts
+│       ├── outpost                     # Sui outpost contract
+│       │   ├── sources                 # Move source files
+│       │   │   └── outpost.move        # Main outpost contract implementation
+│       │   ├── tests                   # Test files
+│       │   ├── Move.toml               # Move package configuration
+│       │   └── Move.lock               # Move dependency lock file
+│       ├── app                         # Sui app contract
+│       │   ├── sources                 # Move source files
+│       │   │   └── app.move            # Main app contract implementation
+│       │   ├── tests                   # Test files
+│       │   ├── Move.toml               # Move package configuration
+│       │   └── Move.lock               # Move dependency lock file
+│       ├── README.md                   # Outpost documentation
+│       ├── README_WIN_INSTALL.md       # Windows installation guide
+│       └── Makefile                    # Build automation for outpost
+
+└── server                              # Backend server code
+    ├── Dockerfile                      # Docker configuration for containerization
+    ├── Makefile                        # Build automation for the ABCI
+    ├── package.json                    # Dependencies and scripts for the backend
+    ├── src                             # Source code for the ABCI core
+    │   └── index.ts                    # Entry point for the ABCI core
+    └── tsconfig.json                   # TypeScript configuration for the ABCI core
+
 ```
 
 ### 1. Build the Docker Image  
 The Docker image contains the ABCI core, encapsulating all computation and execution logic.  
 
-Open a new terminal in the **fibonacci-js** directory:  
+Open a new terminal in the **fibonacci-js-sui** directory:  
 ```bash
 cd server
-docker build -t abci-fib:latest .
+docker build -t abci-fib-sui:latest .
 ```  
 
-### 2. Start the Chain Node and Deploy the Smart Contract  
+### 2. Start the manager Chain Node (EVM) and Deploy the manager Smart Contract  
 This step simulates an EVM chain locally and deploys the smart contract.  
 
-Open a new terminal in the **fibonacci-js** directory:  
+Open a new terminal in the **fibonacci-js-sui** directory:  
 ```bash
-cd contract
+cd contract/manager
 
 # Ignore any warning messages
 npm install 
@@ -91,25 +109,84 @@ Once you see a consistent block mining signal in the terminal, as shown in the e
     Block Time: "Wed, 19 Mar 2025 23:07:43 +0000"  
 ```  
 
+3. Start the outpost and app chain node (Sui) and deploy outpost and app contract
+
+Open one terminal, start Sui local node
+```
+cd contract/sui
+make node
+```
+
+Open another terminal, deploy the outpost contract
+```
+cd contract/sui
+
+make faucet
+
+make deploy-outpost
+
+```
+You should see something like this
+```
+Outpost Contract Deployed. Environment Variables:
+OUTPOST_ADDR=0xcb5f8d32698ea486a15f1f4d2b0a2003417cc37fc6c8ba19f18ea877181b1026
+OUTPOST_ADMIN_CAP=0xfcec673654c6a0829cd602062a03f4f87ced59f90c7431f49c3e443687158d21
+OUTPOST_APP_REGISTRY=0x52ea4c53b27dca0642aa2e7cdad36730e96a1c919288400366471fdeba9acd48
+OUTPOST_APP_SESSION=0xc92fc516d3477beb9ede4ca7c5150f814f798bdb5238aed27e21f3ae4d7fb128
+```
+
+Take the value of [OUTPOST_ADDR], fill that in sparsity address in fibonacci-js-sui\contract\outpost\app\Move.toml, like
+```
+[addresses]
+sparsity = "0xcb5f8d32698ea486a15f1f4d2b0a2003417cc37fc6c8ba19f18ea877181b1026" 
+app = "0x0"
+```
+
+Then deploy app address
+```
+make deploy-app
+```
+
+You would see 
+```
+App Contract Deployed. Environment Variables:
+APP_ADDR=0xd76f76c9375ed07c8ad986388b4eff39e3a26b185746dc928b578831820ce736
+APP_STATE=0xcffde70ac41413d8100095b4883b61446e24ad76d8d0da5ba1e7dab559dcfe56
+```
+
+Then register app and approve app
+```
+make register-app
+
+make approve-app
+```
+
 
 ### 3. Start the Bridge  
 The **Bridge** service connects the host EVM chain with the **Sparsity platform**.  
 
+Update [OutpostAddress] in `bridge/.env.example` with the value of [OUTPOST_ADDR], for example
+```
+OutpostAddress=0xcb5f8d32698ea486a15f1f4d2b0a2003417cc37fc6c8ba19f18ea877181b1026
+```
+
 Open a new terminal and run:  
 ```bash
-docker pull sparsityxyz/bridge:latest
-
+docker pull sparsityxyz/bridge:20250420230231 
+ 
 # macOS
-docker run --rm -ti -e HOST=host.docker.internal sparsityxyz/bridge:latest
+docker run --rm -ti --env-file bridge/.env.example -e HOST=host.docker.internal sparsityxyz/bridge:20250420230231  
 
 # Linux
-docker run --rm -ti -e HOST=172.17.0.1 sparsityxyz/bridge:latest
+docker run --rm -ti --env-file bridge/.env.example -e HOST=172.17.0.1 sparsityxyz/bridge:20250420230231 
 ```  
+
+
 
 Once you see the following signal in the terminal, it indicates that the bridge service has started and is running. You can now proceed to the next section.  
 
 ```
-I[2025-03-19|23:10:20.791] All historical data processed                module=eventListener 
+Sui-Event-Query request: ...
 ```  
 
 
@@ -118,7 +195,7 @@ The **Fleet** service triggers the Sparsity execution session upon receiving sig
 
 Open a new terminal and pull the Fleet images:  
 ```bash
-docker pull sparsityxyz/fleet:latest
+docker pull sparsityxyz/fleet:20250421141233
 docker pull sparsityxyz/fleet-er:latest
 ```  
 
@@ -127,14 +204,16 @@ Then, run the Fleet service:
 ```bash
 # macOS
 docker run -ti --rm \
+    --env-file fleet/.env.example \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    sparsityxyz/fleet:latest fleet run --local
+    sparsityxyz/fleet:20250421141233 fleet run --local
 
 # Linux
 docker run -ti --rm \
+    --env-file fleet/.env.example \
     -v /var/run/docker.sock:/var/run/docker.sock \
     --add-host=host.docker.internal:172.17.0.1 \
-    sparsityxyz/fleet:latest fleet run --local
+    sparsityxyz/fleet:20250421141233 fleet run --local
 ```  
 
 Once the following signal appears in the terminal, it confirms that the fleet service has successfully started and is running. You can now proceed to the next section.  

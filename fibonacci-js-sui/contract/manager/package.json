@@ -1,22 +1,17 @@
 {
-  "name": "fibonacci",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "@openzeppelin/contracts": "^5.2.0",
-    "@openzeppelin/contracts-upgradeable": "^5.2.0",
-    "@openzeppelin/hardhat-upgrades": "^3.9.0",
-    "dotenv": "^16.4.7",
-    "hardhat": "^2.22.18"
-  },
   "devDependencies": {
+    "@nomicfoundation/hardhat-ethers": "^3.0.8",
     "@nomicfoundation/hardhat-ignition-ethers": "^0.15.9",
-    "@nomicfoundation/hardhat-toolbox": "^5.0.0"
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@nomicfoundation/hardhat-verify": "^2.0.12",
+    "@openzeppelin/hardhat-upgrades": "^3.8.0",
+    "ethers": "^6.13.4",
+    "hardhat": "^2.22.17"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.1.0",
+    "@openzeppelin/contracts-upgradeable": "^5.1.0",
+    "@solarity/solidity-lib": "^3.0.2",
+    "dotenv": "^16.4.7"
   }
 }
