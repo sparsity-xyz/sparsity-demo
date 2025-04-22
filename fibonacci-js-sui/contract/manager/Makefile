@@ -25,17 +25,14 @@ ATTESTATION_URL ?= http://43.201.52.244:8001/attest
 node:
 	@echo "$(LOG_PREFIX) Starting local development environment..."
 	$(KILL_ANVIL)
-	nohup anvil --block-time 1 --block-gas-limit 120000000 > nohup.log 2>&1 &
+	nohup anvil --host 0.0.0.0 --block-time 1 --block-gas-limit 120000000 > nohup.log 2>&1 &
 	sleep 1
 	${MAKE} deploy
 	${MAKE} register-validator
 	${MAKE} test-proxy
 	${MAKE} send-settle-eth
-	${MAKE} register-app
-	${MAKE} approve-app
 	${MAKE} set-manager-bridge
 	${MAKE} set-outpost-bridge
-	${MAKE} test-event
 	@echo "$(LOG_PREFIX) Local environment setup complete. Watching logs..."
 	tail -f nohup.log
 
@@ -71,37 +68,8 @@ send-settle-eth:
 	@echo "$(LOG_PREFIX) Checking fleet settler balance..."
 	cast balance ${FLEET_SETTLER_ADDRESS}
 
-## app
-new-session:
-	@echo "$(LOG_PREFIX) Requesting new Fibonacci calculation session to ER..."
-	cast send ${APP_CONTRACT} --private-key ${PROXY_ADMIN_PRIVATE_KEY} "requestFib(uint256,uint8)" 11 $(EXEC_TYPE)
 
-session-result:
-	@echo "$(LOG_PREFIX) Getting session result..."
-	@cast abi-decode "getFibonacci(uint256)(uint256)" $(shell cast call ${APP_CONTRACT} --private-key ${CONTRACT_OWNER_PRIVATE_KEY} "getFibonacci(uint256)" 11)
-	
-request-fib:
-	@echo "$(LOG_PREFIX) Requesting new Fibonacci calculation session to execution type $(EXEC_TYPE)..."
-	cast send ${APP_CONTRACT} --private-key ${PROXY_ADMIN_PRIVATE_KEY} "requestFib(uint256,uint8)" $(NUM) $(EXEC_TYPE)
-
-get-fib:
-	@echo "$(LOG_PREFIX) Requesting new Fibonacci calculation session..."
-	@cast abi-decode "getFibonacci(uint256)(uint256)" $(shell cast call ${APP_CONTRACT} --private-key ${CONTRACT_OWNER_PRIVATE_KEY} "getFibonacci(uint256)" $(NUM))
-
-
-fib-result:
-	@echo "$(LOG_PREFIX) Getting Fibonacci calculation result..."
-	@cast abi-decode "getFibonacci(uint256)(uint256)" $(shell cast call ${APP_CONTRACT} --private-key ${CONTRACT_OWNER_PRIVATE_KEY} "getFibonacci(uint256)" 11)
-
-## outpost
-register-app:
-	@echo "$(LOG_PREFIX) Registering APP with Outpost..."
-	cast send ${OUTPOST_PROXY_CONTRACT} --private-key ${PROXY_ADMIN_PRIVATE_KEY} "registerAPP(address,uint,uint8,string,string)" ${APP_CONTRACT} 1 ${EXEC_TYPE} ${DOCKER_URI} ${DOCKER_HASH}
-
-approve-app:
-	@echo "$(LOG_PREFIX) Approving APP in Outpost..."
-	cast send ${OUTPOST_PROXY_CONTRACT} --private-key ${CONTRACT_OWNER_PRIVATE_KEY} "approveAPP(address)" ${APP_CONTRACT}
-
+## outpost 
 approver:
 	@echo "$(LOG_PREFIX) Checking if address is an approver..."
 	cast call ${OUTPOST_PROXY_CONTRACT} "_approver(address)" ${CONTRACT_OWNER_ADDRESS}
