@@ -25,7 +25,7 @@ ATTESTATION_URL ?= http://43.201.52.244:8001/attest
 node:
 	@echo "$(LOG_PREFIX) Starting local development environment..."
 	$(KILL_ANVIL)
-	nohup anvil --block-time 1 --block-gas-limit 120000000 > nohup.log 2>&1 &
+	nohup anvil --host 0.0.0.0 --block-time 1 --block-gas-limit 120000000 > nohup.log 2>&1 &
 	sleep 1
 	${MAKE} deploy
 	${MAKE} register-validator

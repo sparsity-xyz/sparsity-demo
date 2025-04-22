@@ -90,7 +90,7 @@ npm install
 
 # Pre-configured example environment variables for quick setup.
 # Please avoid committing sensitive credentials to Git.
-cp .env.example .env
+cp .env.local.example .env
 
 make node
 ```  
@@ -116,6 +116,11 @@ Open one terminal, start Sui local node
 cd contract/outpost
 make node
 ```
+
+Connect your client to the local Sui node
+https://docs.sui.io/guides/developer/getting-started/local-network#connect-the-sui-cli-to-your-local-network
+
+Record the mnemonic (Secret Recovery Phrase) when you set up the client.
 
 Open another terminal, deploy the outpost contract
 ```
@@ -156,9 +161,7 @@ APP_STATE=0x8b808063cc1851159f7b319d3c1d88a8c59b25a091b25a585f1fd0168959d5bc
 
 Then register app and approve app
 ```
-make register-app
-
-make approve-app
+make register-app && make approve-app
 ```
 
 
@@ -170,7 +173,7 @@ Update [OutpostAddress] in `bridge/.env.example` with the value of [OUTPOST_ADDR
 OutpostAddress=0x7229006c4b321b944510650d845a01bdeb4faf4fae1dec4b69f884c484cdad4a
 ```
 
-Open a new terminal and run:  
+Open a new terminal and run under the base directory (`fibonacci-js-sui`):  
 ```bash
 docker pull sparsityxyz/bridge:20250420230231 
  
@@ -178,7 +181,7 @@ docker pull sparsityxyz/bridge:20250420230231
 docker run --rm -ti --env-file bridge/.env.example -e HOST=host.docker.internal sparsityxyz/bridge:20250420230231  
 
 # Linux
-docker run --rm -ti --env-file bridge/.env.example -e HOST=172.17.0.1 sparsityxyz/bridge:20250420230231 
+docker run --rm -ti --env-file bridge/.env.example -e HOST=172.17.0.1 --add-host=host.docker.internal:host-gateway sparsityxyz/bridge:20250420230231 
 ```  
 
 
