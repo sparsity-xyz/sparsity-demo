@@ -155,16 +155,16 @@ make deploy-outpost
 You should see something like this
 ```
 Outpost Contract Deployed. Environment Variables:
-OUTPOST_ADDR=0x1d28e52283bc200f29024286f35ac573524a29ddeb1b748a9af34dfad6bc3490
-OUTPOST_ADMIN_CAP=0x9553a8f841f3e19962e0917853030ec04efadcebd5c8c16947ce423672918c4a
-OUTPOST_APP_REGISTRY=0xfa3b71c7fc34ecdf4619d6240e5ca08f67cae246c7e3a61c8689ba8f8dd8fa13
-OUTPOST_APP_SESSION=0x1136159c597b16d35fb1a2f54391d253544a8a31afb13939b3a8316a7b74f973
+OUTPOST_ADDR=0xc15c2f3adff7b306934432f23b7ad72bb01716da2f5a5fcd75ba3f1a32349391
+OUTPOST_ADMIN_CAP=0xcdac5b031cf5793e41cba61469df890ecd94694e6f8cf00a295c3e6b9b8e4add
+OUTPOST_APP_REGISTRY=0xf1e556f3d738cb406ac3c717f4d506c223a23c46ee8d1e152721d4b5b33ee6e3
+OUTPOST_APP_SESSION=0x8bd9516d234cb636a8daf6523c0ded642b13c07542c536d279d8b0a0ae31db1b
 ```
 
 Take the value of [OUTPOST_ADDR], fill that in sparsity address in fibonacci-js-sui\contract\outpost\app\Move.toml, like
 ```
 [addresses]
-sparsity = "0x1d28e52283bc200f29024286f35ac573524a29ddeb1b748a9af34dfad6bc3490" 
+sparsity = "0xc15c2f3adff7b306934432f23b7ad72bb01716da2f5a5fcd75ba3f1a32349391" 
 app = "0x0"
 ```
 
@@ -173,11 +173,11 @@ Then deploy app address in the same terminal
 make deploy-app
 ```
 
-You would see 
+You would see something like
 ```
 App Contract Deployed. Environment Variables:
-APP_ADDR=0xfed750fb2ca15068425e66559a0e64189b2055838f5406893917ba04582afe58
-APP_STATE=0x82e89202674c2b2e70f7c8e63739466e4c0d09ee96da23d4986be196c6c1cb07
+APP_ADDR=0x77fb74a9402d75e00ee5f6ea8d01e2fbe0d3aee58ca25756b1852e1f2906812b
+APP_STATE=0xdf1cce4c61577175c704a617c380308e3a843d513386ed36f745c9ff79be768b
 ```
 
 Then register app and approve app in the same terminal
@@ -191,7 +191,7 @@ The **Bridge** service connects the host EVM chain with the **Sparsity platform*
 
 Update [OutpostAddress] in `bridge/.env.example` with the value of [OUTPOST_ADDR], for example
 ```
-OutpostAddress=0x1d28e52283bc200f29024286f35ac573524a29ddeb1b748a9af34dfad6bc3490
+OutpostAddress=0xc15c2f3adff7b306934432f23b7ad72bb01716da2f5a5fcd75ba3f1a32349391
 ```
 
 Open a new terminal, go to **fibonacci-js-sui** directory:  
@@ -217,7 +217,17 @@ Sui-Event-Query request: ...
 ### 5. Start the Fleet  
 The **Fleet** service triggers the Sparsity execution session upon receiving signals from the host chain via the Bridge service.  
 
-Open a new terminal and pull the Fleet images:  
+Update envs in `fleet/.env.example` with the value of [OUTPOST_ADDR], [OUTPOST_APP_SESSION], [OUTPOST_ADMIN_CAP] as in step 3 above and update the mnemonic with your local admin account when setting up local Sui network, for example
+```
+SUI_OUTPOST_ADDRESS=0xc15c2f3adff7b306934432f23b7ad72bb01716da2f5a5fcd75ba3f1a32349391
+SUI_OUTPOST_SESSION_ADDRESS=0x8bd9516d234cb636a8daf6523c0ded642b13c07542c536d279d8b0a0ae31db1b
+SUI_OUTPOST_ADMIN_CAP_ADDRESS=0xcdac5b031cf5793e41cba61469df890ecd94694e6f8cf00a295c3e6b9b8e4add
+SUI_OUTPOST_OWNER_MNEMONIC="reveal fold artefact hub unlock emotion seat harsh pelican tone upon mutual"
+```
+
+
+
+Open a new terminal, go to **fibonacci-js-sui** directory, pull the Fleet images:  
 ```bash
 docker pull sparsityxyz/fleet:20250422005123
 docker pull sparsityxyz/fleet-er:latest
@@ -249,7 +259,7 @@ I[2025-03-19|23:19:33.317] All historical data processed                module=e
 ### 6. Interact with the Smart Contract  
 Once everything is running locally, you can perform end-to-end testing by interacting with the smart contract.  
 
-To compute Fibonacci for a given number (e.g., `30`, the parameter is in `new-session` cmd in the Makefile):  
+To compute Fibonacci for a given number (e.g., `30`, the parameter is set in `new-session` cmd in the Makefile):  
 
 Open a new terminal in the **fibonacci-js-sui** directory:  
 ```bash
@@ -263,7 +273,7 @@ Wait for the **Bridge** and **Fleet** to process the request. The system will fi
 I[2025-04-22|08:10:27.694] Settlement sent succeed 
 ```
 
-It indicates that the settlement was successful. Then, retrieve the result by running:  
+It indicates that the settlement was successful. Then, retrieve the result (expected to be `832040`) by running:  
 
 ```bash
 make session-result
