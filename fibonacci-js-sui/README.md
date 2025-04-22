@@ -109,17 +109,17 @@ Once you see a consistent block mining signal in the terminal, as shown in the e
     Block Time: "Wed, 19 Mar 2025 23:07:43 +0000"  
 ```  
 
-3. Start the outpost and app chain node (Sui) and deploy outpost and app contract
+### 3. Start the outpost and app chain node (Sui) and deploy outpost and app contract
 
 Open one terminal, start Sui local node
 ```
-cd contract/sui
+cd contract/outpost
 make node
 ```
 
 Open another terminal, deploy the outpost contract
 ```
-cd contract/sui
+cd contract/outpost
 
 make faucet
 
@@ -129,16 +129,16 @@ make deploy-outpost
 You should see something like this
 ```
 Outpost Contract Deployed. Environment Variables:
-OUTPOST_ADDR=0xcb5f8d32698ea486a15f1f4d2b0a2003417cc37fc6c8ba19f18ea877181b1026
-OUTPOST_ADMIN_CAP=0xfcec673654c6a0829cd602062a03f4f87ced59f90c7431f49c3e443687158d21
-OUTPOST_APP_REGISTRY=0x52ea4c53b27dca0642aa2e7cdad36730e96a1c919288400366471fdeba9acd48
-OUTPOST_APP_SESSION=0xc92fc516d3477beb9ede4ca7c5150f814f798bdb5238aed27e21f3ae4d7fb128
+OUTPOST_ADDR=0x7229006c4b321b944510650d845a01bdeb4faf4fae1dec4b69f884c484cdad4a
+OUTPOST_ADMIN_CAP=0x020dd6110d6d1f9cf3c0741dcb088e729632c9fb3f19f3c588e6cfa3fc72bb82
+OUTPOST_APP_REGISTRY=0x6de6062b95f79935da89c30432b1bad124ea81e963ebe535ac63ef2d5b0af984
+OUTPOST_APP_SESSION=0xb22201440712fab15547b19b84260b05822560dd507989ec4aab3fe1c12de22c
 ```
 
 Take the value of [OUTPOST_ADDR], fill that in sparsity address in fibonacci-js-sui\contract\outpost\app\Move.toml, like
 ```
 [addresses]
-sparsity = "0xcb5f8d32698ea486a15f1f4d2b0a2003417cc37fc6c8ba19f18ea877181b1026" 
+sparsity = "0x7229006c4b321b944510650d845a01bdeb4faf4fae1dec4b69f884c484cdad4a" 
 app = "0x0"
 ```
 
@@ -150,8 +150,8 @@ make deploy-app
 You would see 
 ```
 App Contract Deployed. Environment Variables:
-APP_ADDR=0xd76f76c9375ed07c8ad986388b4eff39e3a26b185746dc928b578831820ce736
-APP_STATE=0xcffde70ac41413d8100095b4883b61446e24ad76d8d0da5ba1e7dab559dcfe56
+APP_ADDR=0xb6c34eef8b42bb603249642c5374ede4731602781188f7df293a6950643c615c
+APP_STATE=0x8b808063cc1851159f7b319d3c1d88a8c59b25a091b25a585f1fd0168959d5bc
 ```
 
 Then register app and approve app
@@ -162,19 +162,19 @@ make approve-app
 ```
 
 
-### 3. Start the Bridge  
+### 4. Start the Bridge  
 The **Bridge** service connects the host EVM chain with the **Sparsity platform**.  
 
 Update [OutpostAddress] in `bridge/.env.example` with the value of [OUTPOST_ADDR], for example
 ```
-OutpostAddress=0xcb5f8d32698ea486a15f1f4d2b0a2003417cc37fc6c8ba19f18ea877181b1026
+OutpostAddress=0x7229006c4b321b944510650d845a01bdeb4faf4fae1dec4b69f884c484cdad4a
 ```
 
 Open a new terminal and run:  
 ```bash
 docker pull sparsityxyz/bridge:20250420230231 
  
-# macOS
+# macOS and wsl
 docker run --rm -ti --env-file bridge/.env.example -e HOST=host.docker.internal sparsityxyz/bridge:20250420230231  
 
 # Linux
@@ -190,30 +190,30 @@ Sui-Event-Query request: ...
 ```  
 
 
-### 4. Start the Fleet  
+### 5. Start the Fleet  
 The **Fleet** service triggers the Sparsity execution session upon receiving signals from the host chain via the Bridge service.  
 
 Open a new terminal and pull the Fleet images:  
 ```bash
-docker pull sparsityxyz/fleet:20250421141233
+docker pull sparsityxyz/fleet:20250422005123
 docker pull sparsityxyz/fleet-er:latest
 ```  
 
 Then, run the Fleet service:  
 
 ```bash
-# macOS
+# macOS and wsl
 docker run -ti --rm \
     --env-file fleet/.env.example \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    sparsityxyz/fleet:20250421141233 fleet run --local
+    sparsityxyz/fleet:20250422005123 fleet run --local
 
-# Linux
+# Linux 
 docker run -ti --rm \
     --env-file fleet/.env.example \
     -v /var/run/docker.sock:/var/run/docker.sock \
     --add-host=host.docker.internal:172.17.0.1 \
-    sparsityxyz/fleet:20250421141233 fleet run --local
+    sparsityxyz/fleet:20250422005123 fleet run --local
 ```  
 
 Once the following signal appears in the terminal, it confirms that the fleet service has successfully started and is running. You can now proceed to the next section.  
@@ -222,150 +222,43 @@ Once the following signal appears in the terminal, it confirms that the fleet se
 I[2025-03-19|23:19:33.317] All historical data processed                module=eventListener 
 ```  
 
-### 5. Interact with the Smart Contract  
+### 6. Interact with the Smart Contract  
 Once everything is running locally, you can perform end-to-end testing by interacting with the smart contract.  
 
-To compute Fibonacci for a given number (e.g., `30`):  
+To compute Fibonacci for a given number (e.g., `30`, the parameter is in `new-session` cmd in the Makefile):  
 
-Open a new terminal in the **fibonacci-js** directory:  
+Open a new terminal in the **fibonacci-js-sui** directory:  
 ```bash
-cd contract
-make request-fib NUM=30
+cd contract/outpost
+make new-session
 ```   
 
 Wait for the **Bridge** and **Fleet** to process the request. The system will first start the ABCI container and then compute the result, each taking several seconds depending on the machine's performance. Once you see a message like this in the Fleet terminal:
 
 ```
-I[2025-03-20|01:14:18.616] Settlement success                           hash=0xc58176e897f9755822bd6001e3e1fdb086d62ffcc846e6c873e4a70323262d4f
+I[2025-04-22|08:10:27.694] Settlement sent succeed 
 ```
 
 It indicates that the settlement was successful. Then, retrieve the result by running:  
 
 ```bash
-make fib-result NUM=30
+make session-result
 ```  
 
 **Expected output:**  
 
 ```bash
-832040
+Session result check successful!
+Contract vector data: [
+  6,
+  56,
+  51,
+  50,
+  48,
+  52,
+  48
+]
+Converted data: 832040
 ```  
 
 ---
-
-## Deployment to Devnet  
-
-### 1. Deploy the App Contract  
-
-Open a new terminal in the **fibonacci-js** directory:
-
-```bash
-cd contract
-cp .env.example.sepolia .env
-```
-
-Next, update the `.env` file by adding your deployer private key.
-
-**Note:** The Base Sepolia RPC endpoint may sometimes be unstable. If you encounter issues, try different endpoints from [Chainlist](https://chainlist.org/chain/84532) and update the `BASE_RPC` variable in your `.env` file accordingly.
-
-To deploy the contract, run:  
-```bash
-make -f Makefile_sepolia deploy
-```
-
-The deployment files will be stored in:  
-```  
-ignition/deployments/chain-84532  
-```  
-
-During deployment, you could be prompted with the following options in the terminal. Select **"yes"** for both:  
-```  
-✔ Confirm deploy to network base_sepolia (84532)? … yes  
-✔ Confirm reset of deployment "chain-84532" on chain 84532? … yes  
-```  
-
-Afterwards, add the deployed contract address to your `.env` file:
-```
-APP_CONTRACT=
-```
-
-### 2. Publish the App to a Public Docker Registry  
-
-Refer to [Docker's official guide](https://docs.docker.com/get-started/introduction/build-and-push-first-image/) for instructions on building and pushing a Docker image.  
-
-#### Build the Docker Image  
-
-```bash
-cd server
-docker build --platform linux/amd64 -t <DOCKER_USERNAME>/<REPOSITORY_NAME>:<TAG> .
-```  
-
-This builds a Docker image with the specified tag, ensuring compatibility with `linux/amd64`.  
-
-#### Log in to Docker Registry  
-
-```bash
-docker login
-```  
-
-Authenticate with the registry before pushing the image.  
-
-#### Push the Image to the Registry  
-
-```bash
-docker push <DOCKER_USERNAME>/<REPOSITORY_NAME>:<TAG>
-```  
-
-This uploads the image to the specified repository.  
-
----
-
-### 3. Update Docker Information  
-
-Refer to the [Docker documentation](https://docs.docker.com/reference/cli/docker/image/ls/#digests) for details on retrieving the image digest.  
-
-#### Retrieve the Image Digest and Update the `.env` File  
-
-```bash
-docker images --digests | grep <DOCKER_USERNAME>/<REPOSITORY_NAME>
-```  
-
-From the terminal output, locate the row where the **[REPOSITORY]** column matches `<DOCKER_USERNAME>/<REPOSITORY_NAME>`. The value in the **[DIGEST]** column is the Docker image hash (`DOCKER_HASH`), and the **[REPOSITORY]** column provides the `DOCKER_URI`.  
-
-Update the `.env` file with these values:  
-
-```
-DOCKER_URI=<REPOSITORY_NAME>
-DOCKER_HASH=<IMAGE_DIGEST>
-```
-
-### 4. Register Your Contract with the Sparsity Outpost Contract  
-
-Open a new terminal in the **fibonacci-js** directory:
-
-```bash
-cd contract
-make -f Makefile_sepolia register-app
-```  
-
-### 5. Call Your Contract  
-
-In contract directory
-```bash
-make -f Makefile_sepolia request-fib NUM=30
-```  
-
-The system will first start the ABCI container and then compute the result, with each step taking several seconds, depending on the allocated machine's performance.
-
-### 6. Retrieve and Verify the Result  
-
-In contract directory
-```bash
-make -f Makefile_sepolia fib-result NUM=30
-```  
-
-**Expected output:**  
-
-```bash
-832040
-```  

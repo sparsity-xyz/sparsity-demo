@@ -11,9 +11,10 @@ export class Application extends BaseApplication {
     }
     
     init(initial_data: string) {
-        // the initial_data is the data from contract
         if (initial_data != "") { 
+            console.log("initial_data", initial_data);
             const input = parseInt(initial_data);
+            
             this.result = this.fibonacci(input);
             console.log("fib result", this.result);
             console.log("fib encode result", this.resultData())
