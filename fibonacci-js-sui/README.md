@@ -90,7 +90,7 @@ npm install
 
 # Pre-configured example environment variables for quick setup.
 # Please avoid committing sensitive credentials to Git.
-cp .env.example .env
+cp .env.local.example .env
 
 make node
 ```  
