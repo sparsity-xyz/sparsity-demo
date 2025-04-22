@@ -111,18 +111,39 @@ Once you see a consistent block mining signal in the terminal, as shown in the e
 
 ### 3. Start the outpost and app chain node (Sui) and deploy outpost and app contract
 
-Open one terminal, start Sui local node
+#### Prerequisites
+- **Install Sui CLI**
+  - Follow the [official installation guide](https://docs.sui.io/guides/developer/getting-started/sui-install)
+
+- **Configure Local Environment**
+  - Follow the [Sui Client Configuration Guide](https://docs.sui.io/guides/developer/getting-started/connect#configure-sui-client)
+  - Run the following command to start the configuration:
+  ```bash
+  sui client
+  ```
+  - When prompted, follow these steps:
+    ```
+    Config file ["~/.sui/sui_config/client.yaml"] doesn't exist, do you want to connect to a Sui Full node server [y/N]? y
+    Sui Full node server URL (Defaults to Sui Testnet if not specified): 127.0.0.1:9000
+    Environment alias for [127.0.0.1:9000]: local
+    Select key scheme to generate keypair (0 for ed25519, 1 for secp256k1, 2: for secp256r1): 0
+    ```
+  - After configuration, you'll see:
+    ```
+    Generated new keypair and alias for address with scheme "ed25519" [competent-agates: 0x...]
+    Secret Recovery Phrase: [mnemonic...]
+    ```
+
+  > **Important**: Save your Secret Recovery Phrase securely. You'll need it later for the fleet setup configuration.
+
+#### Start Sui Local Node
+Open one terminal, go to **fibonacci-js-sui** directory, start Sui local node
 ```
 cd contract/outpost
 make node
 ```
 
-Connect your client to the local Sui node
-https://docs.sui.io/guides/developer/getting-started/local-network#connect-the-sui-cli-to-your-local-network
-
-Record the mnemonic (Secret Recovery Phrase) when you set up the client.
-
-Open another terminal, deploy the outpost contract
+Open another terminal, go to **fibonacci-js-sui** directory, deploy the outpost contract
 ```
 cd contract/outpost
 
@@ -134,20 +155,20 @@ make deploy-outpost
 You should see something like this
 ```
 Outpost Contract Deployed. Environment Variables:
-OUTPOST_ADDR=0x7229006c4b321b944510650d845a01bdeb4faf4fae1dec4b69f884c484cdad4a
-OUTPOST_ADMIN_CAP=0x020dd6110d6d1f9cf3c0741dcb088e729632c9fb3f19f3c588e6cfa3fc72bb82
-OUTPOST_APP_REGISTRY=0x6de6062b95f79935da89c30432b1bad124ea81e963ebe535ac63ef2d5b0af984
-OUTPOST_APP_SESSION=0xb22201440712fab15547b19b84260b05822560dd507989ec4aab3fe1c12de22c
+OUTPOST_ADDR=0x1d28e52283bc200f29024286f35ac573524a29ddeb1b748a9af34dfad6bc3490
+OUTPOST_ADMIN_CAP=0x9553a8f841f3e19962e0917853030ec04efadcebd5c8c16947ce423672918c4a
+OUTPOST_APP_REGISTRY=0xfa3b71c7fc34ecdf4619d6240e5ca08f67cae246c7e3a61c8689ba8f8dd8fa13
+OUTPOST_APP_SESSION=0x1136159c597b16d35fb1a2f54391d253544a8a31afb13939b3a8316a7b74f973
 ```
 
 Take the value of [OUTPOST_ADDR], fill that in sparsity address in fibonacci-js-sui\contract\outpost\app\Move.toml, like
 ```
 [addresses]
-sparsity = "0x7229006c4b321b944510650d845a01bdeb4faf4fae1dec4b69f884c484cdad4a" 
+sparsity = "0x1d28e52283bc200f29024286f35ac573524a29ddeb1b748a9af34dfad6bc3490" 
 app = "0x0"
 ```
 
-Then deploy app address
+Then deploy app address in the same terminal
 ```
 make deploy-app
 ```
@@ -155,11 +176,11 @@ make deploy-app
 You would see 
 ```
 App Contract Deployed. Environment Variables:
-APP_ADDR=0xb6c34eef8b42bb603249642c5374ede4731602781188f7df293a6950643c615c
-APP_STATE=0x8b808063cc1851159f7b319d3c1d88a8c59b25a091b25a585f1fd0168959d5bc
+APP_ADDR=0xfed750fb2ca15068425e66559a0e64189b2055838f5406893917ba04582afe58
+APP_STATE=0x82e89202674c2b2e70f7c8e63739466e4c0d09ee96da23d4986be196c6c1cb07
 ```
 
-Then register app and approve app
+Then register app and approve app in the same terminal
 ```
 make register-app && make approve-app
 ```
@@ -170,10 +191,10 @@ The **Bridge** service connects the host EVM chain with the **Sparsity platform*
 
 Update [OutpostAddress] in `bridge/.env.example` with the value of [OUTPOST_ADDR], for example
 ```
-OutpostAddress=0x7229006c4b321b944510650d845a01bdeb4faf4fae1dec4b69f884c484cdad4a
+OutpostAddress=0x1d28e52283bc200f29024286f35ac573524a29ddeb1b748a9af34dfad6bc3490
 ```
 
-Open a new terminal and run under the base directory (`fibonacci-js-sui`):  
+Open a new terminal, go to **fibonacci-js-sui** directory:  
 ```bash
 docker pull sparsityxyz/bridge:20250420230231 
  
