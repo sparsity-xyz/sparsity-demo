@@ -81,3 +81,5 @@ typechain-types
 node_modules/  
 package-lock.json 
 
+fibonacci-js-sui/contract/outpost/app/build/
+fibonacci-js-sui/contract/outpost/outpost/build/
