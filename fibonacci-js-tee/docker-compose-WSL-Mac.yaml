@@ -6,7 +6,6 @@ services:
     ports:
       - "26657:26657"
       - "1317:1317"
-      - "8545:8545"
       - "8546:8546"
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -38,14 +37,11 @@ services:
     command: fleet run --home /app/.fleet --local --exec-types ${EXEC_TYPES} --counts ${PROVIDER_COUNTS}
     env_file:
       - .env
-    environment:
-      - DOCKER_HOST=unix:///var/run/docker.sock
+    network_mode: host
     volumes:
       - ./config:/app/config
       - ./.data:/app/.fleet
       - /var/run/docker.sock:/var/run/docker.sock
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     privileged: true
     depends_on:
       - fleet-register
