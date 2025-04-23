@@ -3,6 +3,7 @@
 Guide to build your own local TEE-based off-chain computing workflow
 
 ## Pull & build relevant docker images
+In terminal, go to the directory of **fibonacci-js-tee**
 ```
 docker pull sparsityxyz/fleet:20250421141233
 docker pull sparsityxyz/bridge:20250421142445
@@ -22,14 +23,23 @@ docker build -t nitro-enclave-sim:latest -f docker/Dockerfile.enclave_sim .
 
 ## Set up environemnt & environment variables
 
-1. Under the root directory, copy over the `.env.example` file to `.env` to set up basic environment variables for fleet and bridge.
-1. Under `evm/`, copy over `.env.local.example` to `.env`.
-2. Make any necessary changes in the `.env` file. (The only variable you should change is `DOCKER_URI`, which is the docker URI to your customized application) By default, you shouldn't need to change anything.
-3. Under `evm/`, install hardhat using the following command
+1. Under the **fibonacci-js-tee** directory, copy over the `.env.example` file to `.env` to set up basic environment variables for fleet and bridge.
+   ```
+   # From terminal of the directory of [fibonacci-js-tee]
+   cp .env.example .env
+   ```
+2. Under `evm/`, copy over `.env.local.example` to `.env`.
+   ```
+   # From terminal of the directory of [fibonacci-js-tee]
+   cd evm
+   cp .env.local.example .env
+   ```
+3. Make any necessary changes in the `.env` file. (The only variable you should change is `DOCKER_URI`, which is the docker URI to your customized application) By default, you shouldn't need to change anything.
+4. Under `evm/`, install hardhat using the following command
 ```
 npm install hardhat
 ```
-4. If you're using Linux, you have to configure `host.docker.internal` for docker image connection. This will enable docker containers easily connect to each other.
+1. If you're using Linux, you have to configure `host.docker.internal` for docker image connection. This will enable docker containers easily connect to each other.
 ```
 echo "127.0.0.1 host.docker.internal" | sudo tee -a /etc/hosts
 ```
@@ -40,16 +50,16 @@ echo "127.0.0.1 host.docker.internal" | sudo tee -a /etc/hosts
 make node
 ```
 
-2. In another terminal, run the bridge container
+2. Open another terminal, under the **fibonacci-js-tee** directory, run the bridge container
 ```
-make start-bridge
+make bridge-start
 ```
 
  > - This will start the bridge process to relay the events between manager and outpost contracts.
 
-3. After the node is done deploying contracts & sending out the tokens to the addresses, run the fleet container in another terminal.
+3. After the node is done deploying contracts & sending out the tokens to the addresses, run the fleet container in another terminal under the **fibonacci-js-tee** directory.
 ```
-make start-fleet
+make fleet-start
 ```
 
 
