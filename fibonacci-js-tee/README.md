@@ -2,6 +2,16 @@
 
 Guide to build your own local TEE-based off-chain computing workflow
 
+
+## Install Foundry for local EVM node
+
+You need to run a local EVM node to deploy contracts, and we will be using `anvil` which is provided with `foundry`. Run the following commands to install foundry and set it up on the terminal.
+```
+curl -L https://foundry.paradigm.xyz | bash
+source ~/.bashrc
+foundryup
+```
+
 ## Pull & build relevant docker images
 In terminal, go to the directory of **fibonacci-js-tee**
 ```
