@@ -180,4 +180,7 @@ make get-fib NUM=20
  docker build -t nitro-enclave-sim:latest -f docker/Dockerfile.enclave_sim .
 ```
 
-5. After building the image, you can re-do the process above to test your application.
+5. After building the image, you can re-do the process above to test your application. When you re-run fleet, make sure you delete any data left over from the last run by deleting .data in the base directory.
+```
+ rm -r .data
+```
