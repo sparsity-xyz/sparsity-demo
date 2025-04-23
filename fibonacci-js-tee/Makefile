@@ -22,5 +22,12 @@ fleet-start:
 	$(MAKE) fleet-clear-er-ports
 	docker compose up fleet-run
 
+fleet-start-DHI:
+	$(MAKE) fleet-clear-er-ports
+	docker compose -f docker-compose-WSL-Mac.yaml up fleet-run
+
 bridge-start:
 	docker compose up bridge
+
+bridge-start-DHI:
+	docker compose -f docker-compose-WSL-Mac.yaml up bridge

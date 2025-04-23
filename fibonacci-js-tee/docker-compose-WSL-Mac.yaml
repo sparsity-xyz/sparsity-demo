@@ -3,9 +3,13 @@ services:
     image: sparsityxyz/bridge:20250420230231
     env_file:
       - .env
+    ports:
+      - "26657:26657"
+      - "1317:1317"
+      - "8545:8545"
+      - "8546:8546"
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    network_mode: host
 
   fleet-init:
     image: ${FLEET_URI}
@@ -18,7 +22,7 @@ services:
 
   fleet-register:
     image: ${FLEET_URI}
-    command: fleet register --home /app/.fleet --ip "172.17.0.1" --exec-types ${EXEC_TYPES} --counts ${PROVIDER_COUNTS}
+    command: fleet register --home /app/.fleet --ip "host.docker.internal" --exec-types ${EXEC_TYPES} --counts ${PROVIDER_COUNTS}
     env_file:
       - .env
     volumes:
@@ -26,6 +30,8 @@ services:
       - ./.data:/app/.fleet
     depends_on:
       - fleet-init
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   fleet-run:
     image: ${FLEET_URI}
@@ -38,7 +44,8 @@ services:
       - ./config:/app/config
       - ./.data:/app/.fleet
       - /var/run/docker.sock:/var/run/docker.sock
-    network_mode: host
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     privileged: true
     depends_on:
       - fleet-register

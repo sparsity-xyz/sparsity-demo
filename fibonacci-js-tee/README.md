@@ -39,10 +39,6 @@ docker build -t nitro-enclave-sim:latest -f docker/Dockerfile.enclave_sim .
 ```
 npm install hardhat
 ```
-1. If you're using Linux, you have to configure `host.docker.internal` for docker image connection. This will enable docker containers easily connect to each other.
-```
-echo "127.0.0.1 host.docker.internal" | sudo tee -a /etc/hosts
-```
 
 ## Test Run to see everything works
 1. Under `evm/` run the following code to start the EVM node and set up the contracts. 
@@ -50,16 +46,24 @@ echo "127.0.0.1 host.docker.internal" | sudo tee -a /etc/hosts
 make node
 ```
 
-2. Open another terminal, under the **fibonacci-js-tee** directory, run the bridge container
+2. Open another terminal, under the **fibonacci-js-tee** directory, run the bridge container. Note the command difference in Linux and WSL & Mac
 ```
+# For Linux
 make bridge-start
+
+# For WSL2 and Mac
+make bridge-start-DHI
 ```
 
  > - This will start the bridge process to relay the events between manager and outpost contracts.
 
-3. After the node is done deploying contracts & sending out the tokens to the addresses, run the fleet container in another terminal under the **fibonacci-js-tee** directory.
+3. After the EVM node is done deploying contracts & sending out the tokens to the addresses, run the fleet container in another terminal under the **fibonacci-js-tee** directory.
 ```
+# For Linux
 make fleet-start
+
+# For WSL2 and Mac
+make fleet-start-DHI
 ```
 
 
@@ -80,8 +84,6 @@ ManagerModule#Manager - 0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9
 appModule#APP - 0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9
 certManagerModule#CertManager - 0x5FC8d32690cc91D4c39d9d3abcBD16989F875707
 NitroValidatorModule#NitroValidator - 0x0165878A594ca255338adfa4d48449f69242Eb8F
-
-
 ```
 
  > - This will start listening events on the manager contract to see if there's any new computing reqeusts.
