@@ -19,7 +19,7 @@ Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-fram
 # Override = { local = "../conflicting/version", override = true } 
 sparsity = { local = "../outpost" }
 [addresses]
-sparsity = "0xc15c2f3adff7b306934432f23b7ad72bb01716da2f5a5fcd75ba3f1a32349391" 
+sparsity = "0x0766b19cecec5aaded096e4e0f2aa9a01bbf752a6638a412130254d99cb6e1e2" 
 app = "0x0"
 
 # Named addresses will be accessible in Move as `@name`. They're also exported:

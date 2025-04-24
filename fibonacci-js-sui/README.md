@@ -155,16 +155,16 @@ make deploy-outpost
 You should see something like this
 ```
 Outpost Contract Deployed. Environment Variables:
-OUTPOST_ADDR=0xc15c2f3adff7b306934432f23b7ad72bb01716da2f5a5fcd75ba3f1a32349391
-OUTPOST_ADMIN_CAP=0xcdac5b031cf5793e41cba61469df890ecd94694e6f8cf00a295c3e6b9b8e4add
-OUTPOST_APP_REGISTRY=0xf1e556f3d738cb406ac3c717f4d506c223a23c46ee8d1e152721d4b5b33ee6e3
-OUTPOST_APP_SESSION=0x8bd9516d234cb636a8daf6523c0ded642b13c07542c536d279d8b0a0ae31db1b
+OUTPOST_ADDR=0x0766b19cecec5aaded096e4e0f2aa9a01bbf752a6638a412130254d99cb6e1e2
+OUTPOST_ADMIN_CAP=0xf62e4f0250cb5fb38c0e59c6a5f01f3314173701ca217a8e8930df8ede028806
+OUTPOST_APP_REGISTRY=0x6196c4bd46f3a922f7b8458ab9db87d81b41af915a05bc1057857c321ba3bfd3
+OUTPOST_APP_SESSION=0xd07433824bdae7c8dc29ebac3b61362321e96c5182ab99fb2337c6359b133319
 ```
 
 Take the value of [OUTPOST_ADDR], fill that in sparsity address in fibonacci-js-sui\contract\outpost\app\Move.toml, like
 ```
 [addresses]
-sparsity = "0xc15c2f3adff7b306934432f23b7ad72bb01716da2f5a5fcd75ba3f1a32349391" 
+sparsity = "0x0766b19cecec5aaded096e4e0f2aa9a01bbf752a6638a412130254d99cb6e1e2" 
 app = "0x0"
 ```
 
@@ -176,8 +176,8 @@ make deploy-app
 You would see something like
 ```
 App Contract Deployed. Environment Variables:
-APP_ADDR=0x77fb74a9402d75e00ee5f6ea8d01e2fbe0d3aee58ca25756b1852e1f2906812b
-APP_STATE=0xdf1cce4c61577175c704a617c380308e3a843d513386ed36f745c9ff79be768b
+APP_ADDR=0xd8a40e9b5278c0ce18bab57790049d40a9cfab886cbcd4508e38f31ce47e347e
+APP_STATE=0x00be39e5b73ef7037d6a8ac50cada47766efd0f391859ce3897a6a61d8fcb631
 ```
 
 Then register app and approve app in the same terminal
@@ -191,7 +191,7 @@ The **Bridge** service connects the host EVM chain with the **Sparsity platform*
 
 Update [OutpostAddress] in `bridge/.env.example` with the value of [OUTPOST_ADDR], for example
 ```
-OutpostAddress=0xc15c2f3adff7b306934432f23b7ad72bb01716da2f5a5fcd75ba3f1a32349391
+OutpostAddress=0x0766b19cecec5aaded096e4e0f2aa9a01bbf752a6638a412130254d99cb6e1e2
 ```
 
 Open a new terminal, go to **fibonacci-js-sui** directory:  
@@ -219,9 +219,9 @@ The **Fleet** service triggers the Sparsity execution session upon receiving sig
 
 Update envs in `fleet/.env.example` with the value of [OUTPOST_ADDR], [OUTPOST_APP_SESSION], [OUTPOST_ADMIN_CAP] as in step 3 above and update the mnemonic with your local admin account when setting up local Sui network, for example
 ```
-SUI_OUTPOST_ADDRESS=0xc15c2f3adff7b306934432f23b7ad72bb01716da2f5a5fcd75ba3f1a32349391
-SUI_OUTPOST_SESSION_ADDRESS=0x8bd9516d234cb636a8daf6523c0ded642b13c07542c536d279d8b0a0ae31db1b
-SUI_OUTPOST_ADMIN_CAP_ADDRESS=0xcdac5b031cf5793e41cba61469df890ecd94694e6f8cf00a295c3e6b9b8e4add
+SUI_OUTPOST_ADDRESS=0x0766b19cecec5aaded096e4e0f2aa9a01bbf752a6638a412130254d99cb6e1e2
+SUI_OUTPOST_SESSION_ADDRESS=0xd07433824bdae7c8dc29ebac3b61362321e96c5182ab99fb2337c6359b133319
+SUI_OUTPOST_ADMIN_CAP_ADDRESS=0xf62e4f0250cb5fb38c0e59c6a5f01f3314173701ca217a8e8930df8ede028806
 SUI_OUTPOST_OWNER_MNEMONIC="reveal fold artefact hub unlock emotion seat harsh pelican tone upon mutual"
 ```
 
@@ -229,8 +229,8 @@ SUI_OUTPOST_OWNER_MNEMONIC="reveal fold artefact hub unlock emotion seat harsh p
 
 Open a new terminal, go to **fibonacci-js-sui** directory, pull the Fleet images:  
 ```bash
-docker pull sparsityxyz/fleet:20250422005123
-docker pull sparsityxyz/fleet-er:latest
+docker pull sparsityxyz/fleet:20250423145157
+docker pull sparsityxyz/fleet-er:20250423145202
 ```  
 
 Then, run the Fleet service:  
@@ -240,14 +240,14 @@ Then, run the Fleet service:
 docker run -ti --rm \
     --env-file fleet/.env.example \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    sparsityxyz/fleet:20250422005123 fleet run --local
+    sparsityxyz/fleet:20250423145157 fleet run --local
 
 # Linux 
 docker run -ti --rm \
     --env-file fleet/.env.example \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    --add-host=host.docker.internal:172.17.0.1 \
-    sparsityxyz/fleet:20250422005123 fleet run --local
+    --add-host=host.docker.internal:host-gateway \
+    sparsityxyz/fleet:20250423145157 fleet run --local
 ```  
 
 Once the following signal appears in the terminal, it confirms that the fleet service has successfully started and is running. You can now proceed to the next section.  
