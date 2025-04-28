@@ -92,6 +92,27 @@ approve-app:
 		exit 1; \
 	fi
 
+update-app-move-toml:
+	@if [ ! -f .env ]; then \
+		echo "Error: .env file not found. Please run 'make deploy-outpost' first."; \
+		exit 1; \
+	fi; \
+	set -a; \
+	. $(PWD)/.env; \
+	set +a; \
+	sed -i "s|^\(sparsity = \"\)[^\"\]*\(.*\)$$|\1$${OUTPOST_ADDR}\2|" app/Move.toml; \
+	echo ""; \
+	echo "Updated app/Move.toml with OUTPOST_ADDR"; \
+
+# Deploy, register, and approve app
+all:
+	make faucet
+	make deploy-outpost
+	make update-app-move-toml
+	make deploy-app
+	make register-app
+	make approve-app
+
 new-session:
 	@if [ ! -f .env ]; then \
 		echo "Error: .env file not found. Please run 'make deploy-outpost' and 'make deploy-app' first."; \
@@ -151,3 +172,5 @@ session-result:
 		exit 1; \
 	fi
  
+ 
+MAKEFLAGS += --no-print-directory

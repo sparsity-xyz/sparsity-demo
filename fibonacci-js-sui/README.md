@@ -147,43 +147,24 @@ Open another terminal, go to **fibonacci-js-sui** directory, deploy the outpost 
 ```
 cd contract/outpost
 
-make faucet
-
-make deploy-outpost
-
+make all
 ```
+
 You should see something like this
 ```
+...
 Outpost Contract Deployed. Environment Variables:
-OUTPOST_ADDR=0x0766b19cecec5aaded096e4e0f2aa9a01bbf752a6638a412130254d99cb6e1e2
-OUTPOST_ADMIN_CAP=0xf62e4f0250cb5fb38c0e59c6a5f01f3314173701ca217a8e8930df8ede028806
-OUTPOST_APP_REGISTRY=0x6196c4bd46f3a922f7b8458ab9db87d81b41af915a05bc1057857c321ba3bfd3
-OUTPOST_APP_SESSION=0xd07433824bdae7c8dc29ebac3b61362321e96c5182ab99fb2337c6359b133319
-```
-
-Take the value of [OUTPOST_ADDR], fill that in sparsity address in fibonacci-js-sui\contract\outpost\app\Move.toml, like
-```
-[addresses]
-sparsity = "0x0766b19cecec5aaded096e4e0f2aa9a01bbf752a6638a412130254d99cb6e1e2" 
-app = "0x0"
-```
-
-Then deploy app address in the same terminal
-```
-make deploy-app
-```
-
-You would see something like
-```
+OUTPOST_ADDR=0x6bc0a901f4f96490a9707eda598a2f584975bccdf24d220a9713aff2173bf6a9
+OUTPOST_ADMIN_CAP=0x1401f8932c759258ab23e03dc500d54ae5bb8d33fe21c2905b7cbb03d5026a6c
+OUTPOST_APP_REGISTRY=0xd23d11e3f312f39753938a5499f7d6af3c4085f46cf909500344c28b85938018
+OUTPOST_APP_SESSION=0x086652cc580dc349d9046dcc6dda42d7e2bc2c65e1ae68460aa91ed57d7c37a4
+...
 App Contract Deployed. Environment Variables:
-APP_ADDR=0xd8a40e9b5278c0ce18bab57790049d40a9cfab886cbcd4508e38f31ce47e347e
-APP_STATE=0x00be39e5b73ef7037d6a8ac50cada47766efd0f391859ce3897a6a61d8fcb631
+APP_ADDR=0x0981bba6ea5caac25c93240c14f236439e1314c7e92d38ed1c78e4b5cf9c7ff2
+APP_STATE=0x4682c664a0758b6a6b71fae325f993d2fd8b1e737c11ec74701c73a79832797c
 ```
-
-Then register app and approve app in the same terminal
-```
-make register-app && make approve-app
-```
+What happens behind this `make all` cmd:
+it will faucet, deploy outpost contract, update app config and deploy app contract, register app and approve the app in outpost. For more details, please check the cmd in `fibonacci-js-sui\contract\outpost\Makefile`.
 
 
 ### 4. Start the Bridge  
@@ -191,18 +172,18 @@ The **Bridge** service connects the host EVM chain with the **Sparsity platform*
 
 Update [OutpostAddress] in `bridge/.env.example` with the value of [OUTPOST_ADDR], for example
 ```
-OutpostAddress=0x0766b19cecec5aaded096e4e0f2aa9a01bbf752a6638a412130254d99cb6e1e2
+OutpostAddress=0x6bc0a901f4f96490a9707eda598a2f584975bccdf24d220a9713aff2173bf6a9
 ```
 
 Open a new terminal, go to **fibonacci-js-sui** directory:  
 ```bash
-docker pull sparsityxyz/bridge:20250420230231 
+docker pull sparsityxyz/bridge:20250427183346 
  
 # macOS and wsl
-docker run --rm -ti --env-file bridge/.env.example -e HOST=host.docker.internal sparsityxyz/bridge:20250420230231  
+docker run --rm -ti --env-file bridge/.env.example -e HOST=host.docker.internal sparsityxyz/bridge:20250427183346  
 
 # Linux
-docker run --rm -ti --env-file bridge/.env.example -e HOST=172.17.0.1 --add-host=host.docker.internal:host-gateway sparsityxyz/bridge:20250420230231 
+docker run --rm -ti --env-file bridge/.env.example -e HOST=172.17.0.1 --add-host=host.docker.internal:host-gateway sparsityxyz/bridge:20250427183346 
 ```  
 
 
@@ -219,9 +200,9 @@ The **Fleet** service triggers the Sparsity execution session upon receiving sig
 
 Update envs in `fleet/.env.example` with the value of [OUTPOST_ADDR], [OUTPOST_APP_SESSION], [OUTPOST_ADMIN_CAP] as in step 3 above and update the mnemonic with your local admin account when setting up local Sui network, for example
 ```
-SUI_OUTPOST_ADDRESS=0x0766b19cecec5aaded096e4e0f2aa9a01bbf752a6638a412130254d99cb6e1e2
-SUI_OUTPOST_SESSION_ADDRESS=0xd07433824bdae7c8dc29ebac3b61362321e96c5182ab99fb2337c6359b133319
-SUI_OUTPOST_ADMIN_CAP_ADDRESS=0xf62e4f0250cb5fb38c0e59c6a5f01f3314173701ca217a8e8930df8ede028806
+SUI_OUTPOST_ADDRESS=0x6bc0a901f4f96490a9707eda598a2f584975bccdf24d220a9713aff2173bf6a9
+SUI_OUTPOST_SESSION_ADDRESS=0x086652cc580dc349d9046dcc6dda42d7e2bc2c65e1ae68460aa91ed57d7c37a4
+SUI_OUTPOST_ADMIN_CAP_ADDRESS=0x1401f8932c759258ab23e03dc500d54ae5bb8d33fe21c2905b7cbb03d5026a6c
 SUI_OUTPOST_OWNER_MNEMONIC="reveal fold artefact hub unlock emotion seat harsh pelican tone upon mutual"
 ```
 
@@ -229,8 +210,8 @@ SUI_OUTPOST_OWNER_MNEMONIC="reveal fold artefact hub unlock emotion seat harsh p
 
 Open a new terminal, go to **fibonacci-js-sui** directory, pull the Fleet images:  
 ```bash
-docker pull sparsityxyz/fleet:20250423145157
-docker pull sparsityxyz/fleet-er:20250423145202
+docker pull sparsityxyz/fleet:20250427174344
+docker pull sparsityxyz/fleet-er:20250427174235
 ```  
 
 Then, run the Fleet service:  
@@ -238,16 +219,19 @@ Then, run the Fleet service:
 ```bash
 # macOS and wsl
 docker run -ti --rm \
+    -v ~/sparsity/fleet/data:/.data \
     --env-file fleet/.env.example \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    sparsityxyz/fleet:20250423145157 fleet run --local
+    sparsityxyz/fleet:20250427174344 fleet run --local
 
 # Linux 
 docker run -ti --rm \
+    -v ~/sparsity/fleet/data:/.data \
+    -e HOST=172.17.0.1 \
     --env-file fleet/.env.example \
     -v /var/run/docker.sock:/var/run/docker.sock \
     --add-host=host.docker.internal:host-gateway \
-    sparsityxyz/fleet:20250423145157 fleet run --local
+    sparsityxyz/fleet:20250427174344 fleet run --local
 ```  
 
 Once the following signal appears in the terminal, it confirms that the fleet service has successfully started and is running. You can now proceed to the next section.  
