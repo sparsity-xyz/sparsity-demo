@@ -105,7 +105,7 @@ update-app-move-toml:
 	echo "Updated app/Move.toml with OUTPOST_ADDR"; \
 
 # Deploy, register, and approve app
-all:
+contracts:
 	make faucet
 	make deploy-outpost
 	make update-app-move-toml
