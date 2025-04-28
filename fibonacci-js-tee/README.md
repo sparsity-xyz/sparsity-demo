@@ -184,3 +184,31 @@ make get-fib NUM=20
 ```
  rm -r .data
 ```
+
+6. To debug your application (usually when the fleet cannot send in the settlement), you can see the container logs for the enclave application to see what's going wrong.
+
+```
+docker container ls
+```
+   - Sample output looks like this
+   ```
+   CONTAINER ID   IMAGE                               COMMAND                  CREATED          STATUS          PORTS                                           NAMES
+    60fa884f24a2   nitro-enclave-sim:latest            "python /app/enclave…"   16 seconds ago   Up 15 seconds   0.0.0.0:32770->5000/tcp, [::]:32770->5000/tcp   ss-0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9-0x3b46d8e57382dc7d9fd99c0020bc79735d48b87edfa7d78dcae6f71764758314-2-0-enclave
+    a8c2d361fe59   nitro-parent:latest                 "python3 /app/src/pa…"   16 seconds ago   Up 15 seconds   0.0.0.0:30000->8001/tcp                         ss-0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9-0x3b46d8e57382dc7d9fd99c0020bc79735d48b87edfa7d78dcae6f71764758314-2-0-parent
+    fca5e831aa35   sparsityxyz/fleet:20250421014501    "fleet run --home /a…"   59 seconds ago   Up 58 seconds                                                   fibonacci-js-tee-fleet-run-1
+    834bf6a9bb0a   sparsityxyz/bridge:20250420230231   "bridge --local"         5 days ago       Up 2 minutes                                                    fibonacci-js-tee-bridge-1
+   ```
+
+ 7. If you look at the logs of the docker container, you can see the errors. If you can't see your enclave container here, it's probably died due to panic. You can see these containers using `docker container ls -a`.
+ 8. Seeing the logs, we can locate the error in the app.
+ ```
+ docker logs 60f
+ 2025-04-28 02:12:42,001 - simple-enclave - INFO - Initializing with Fibonacci calculation for n=2000
+ 2025-04-28 02:12:42,002 - simple-enclave - ERROR - Error in initialize: int too big to convert
+ 2025-04-28 02:12:42,002 - simple-enclave - ERROR - Traceback (most recent call last):
+  File "/app/enclave/simple_enclave_app.py", line 63, in initialize
+    self.result = result.to_bytes(32, 'big')
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^
+ OverflowError: int too big to convert
+ ```
+
