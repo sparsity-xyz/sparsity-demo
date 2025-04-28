@@ -70,7 +70,7 @@ Make sure all services are properly installed and Docker daemon is running befor
 ```
 
 ### 1. Build the Docker Image  
-The Docker image contains the ABCI core, encapsulating all computation and execution logic.  
+The Docker image contains the ABCI core, which encapsulates all computation and execution logic for the Fibonacci sequence calculation.  
 
 Open a new terminal in the **fibonacci-js-sui** directory:  
 ```bash
@@ -79,7 +79,7 @@ docker build -t abci-fib-sui:latest .
 ```  
 
 ### 2. Start the manager Chain Node (EVM) and Deploy the manager Smart Contract  
-This step simulates an EVM chain locally and deploys the smart contract.  
+The Manager contract is responsible for Sparsity Platform resource management. It monitors signals from the host chain and allocates computation instances accordingly to serve each task. This step simulates an EVM chain locally and deploys the manager smart contract.  
 
 Open a new terminal in the **fibonacci-js-sui** directory:  
 ```bash
@@ -110,8 +110,12 @@ Once you see a consistent block mining signal in the terminal, as shown in the e
 ```  
 
 ### 3. Start the outpost and app chain node (Sui) and deploy outpost and app contract
+The Outpost and App contracts are deployed on the Sui blockchain. The Outpost contract manages application registration, approval, session handling, and settlement processes. Users can submit computation requests through the App contract, which communicates with the Sparsity Platform via the Outpost contract. This step involves deploying both contracts to a local Sui node.
+
 
 #### Prerequisites
+    **Note**: This application has been developed and tested with Sui version 1.47.0. For optimal compatibility, please ensure you are using the same version.
+
 - **Install Sui CLI**
   - Follow the [official installation guide](https://docs.sui.io/guides/developer/getting-started/sui-install)
 
@@ -147,7 +151,7 @@ Open another terminal, go to **fibonacci-js-sui** directory, deploy the outpost 
 ```
 cd contract/outpost
 
-make all
+make contracts
 ```
 
 You should see something like this
@@ -168,7 +172,7 @@ it will faucet, deploy outpost contract, update app config and deploy app contra
 
 
 ### 4. Start the Bridge  
-The **Bridge** service connects the host EVM chain with the **Sparsity platform**.  
+The **Bridge** service connects the host Sui chain with the **Sparsity platform**.  
 
 Update [OutpostAddress] in `bridge/.env.example` with the value of [OUTPOST_ADDR], for example
 ```
