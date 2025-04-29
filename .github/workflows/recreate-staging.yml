@@ -1,0 +1,28 @@
+name: Recreate staging if deleted
+
+on:
+  delete:
+    branches:
+      - staging
+
+jobs:
+  recreate-staging:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Recreate staging from main
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const mainRef = await github.rest.git.getRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'heads/main'
+            });
+
+            await github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'refs/heads/staging',
+              sha: mainRef.data.object.sha
+            });
