@@ -23,10 +23,12 @@ This repository includes several full-stack demo applications built on the Spars
 
 ## Demo Applications  
 
-- [**Fibonacci JS**](./fibonacci-js/README.md) – Your "Hello World" for Sparsity  
-- [**Fibonacci Python**](./fibonacci-py/README.md) – Fibonacci, but make it Pythonic  
-- [**Gomoku JS**](./gomoku-js/README.md) – Making Sparsity DApps interactive  
-- [**AG2 Python**](./ag2-py) – AI agent doing its magic  
+- [**Fibonacci JS**](./fibonacci-js/README.md) – A "Hello World" introduction to Sparsity Platform
+- [**Fibonacci Python**](./fibonacci-py/README.md) – Fibonacci computation with Python implementation
+- [**Fibonacci SUI**](./fibonacci-js-sui/README.md) – Building on Sui: Smart contracts meet Sparsity
+- [**Fibonacci TEE**](./fibonacci-js-tee/README.md) – Trusted Execution: Secure computing with Sparsity
+- [**Gomoku JS**](./gomoku-js/README.md) – Interactive game development with Sparsity
+- [**AG2 Python**](./ag2-py) – AI agent implementation with Sparsity Platform
 
 ## Development Contribution  
 ### Setup & Commit Guidelines  
