@@ -1,0 +1,38 @@
+FROM python:3.12-slim
+
+# Install system packages
+RUN apt-get update && \
+    apt-get install -y procps net-tools git which ca-certificates && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Update CA certificates
+RUN update-ca-certificates
+
+# Set up working directory
+WORKDIR /app
+
+# Create keys directory
+RUN mkdir -p /app/keys
+
+# Copy source code first to get requirements file
+COPY src/enclave/ /app/enclave/
+COPY src/nsm_wrapper/ /app/nsm_wrapper/
+COPY apps/* /app/enclave/
+
+# Copy mock keys
+COPY keys/ /app/keys/
+
+# Install Python dependencies
+RUN pip3 install --upgrade pip
+RUN pip install --no-cache-dir -r /app/enclave/requirements_sim.txt
+
+# Set environment variables
+ENV VSOCK_PORT=5000
+ENV PYTHONUNBUFFERED=1
+ENV ENV_SETUP=SIM
+ENV ENCLAVE_PORT=5000
+ENV AWS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
+
+# Command to run when container starts
+CMD ["python", "/app/enclave/simple_enclave_app.py"] 

@@ -1,0 +1,22 @@
+{
+  "root": {
+    "key": "/home/yl/Desktop/work/sparsity-monorepo/fleet/tee/keys/root_key.pem",
+    "cert": "/home/yl/Desktop/work/sparsity-monorepo/fleet/tee/keys/root_cert.pem"
+  },
+  "intermediate1": {
+    "key": "/home/yl/Desktop/work/sparsity-monorepo/fleet/tee/keys/intermediate1_key.pem",
+    "cert": "/home/yl/Desktop/work/sparsity-monorepo/fleet/tee/keys/intermediate1_cert.pem"
+  },
+  "intermediate2": {
+    "key": "/home/yl/Desktop/work/sparsity-monorepo/fleet/tee/keys/intermediate2_key.pem",
+    "cert": "/home/yl/Desktop/work/sparsity-monorepo/fleet/tee/keys/intermediate2_cert.pem"
+  },
+  "enclave": {
+    "key": "/home/yl/Desktop/work/sparsity-monorepo/fleet/tee/keys/enclave_key.pem",
+    "cert": "/home/yl/Desktop/work/sparsity-monorepo/fleet/tee/keys/enclave_cert.pem"
+  },
+  "enclave_app": {
+    "key": "/home/yl/Desktop/work/sparsity-monorepo/fleet/tee/keys/enclave_app_key.pem",
+    "cert": "/home/yl/Desktop/work/sparsity-monorepo/fleet/tee/keys/enclave_app_cert.pem"
+  }
+}

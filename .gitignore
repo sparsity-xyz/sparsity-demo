@@ -1,5 +1,20 @@
-node_modules
-.env
+
+
+# Hardhat files
+/cache
+/artifacts
+
+# TypeChain files
+/typechain
+/typechain-types
+
+# solidity-coverage files
+/coverage
+/coverage.json
+
+# Hardhat Ignition default folder for deployments against a local node
+ignition/deployments/chain-31337
+
 
 # Hardhat files
 /cache
@@ -34,26 +49,6 @@ node_modules
 # Hardhat Ignition default folder for deployments against a local node
 ignition/deployments/chain-31337
 
-node_modules
-.env
-
-# Hardhat files
-/cache
-/artifacts
-
-# TypeChain files
-/typechain
-/typechain-types
-
-# solidity-coverage files
-/coverage
-/coverage.json
-
-# Hardhat Ignition default folder for deployments against a local node
-ignition/deployments/chain-31337
-
-node_modules
-.env
 
 # Hardhat files
 /cache
@@ -86,3 +81,5 @@ typechain-types
 node_modules/  
 package-lock.json 
 
+fibonacci-js-sui/contract/outpost/app/build/
+fibonacci-js-sui/contract/outpost/outpost/build/

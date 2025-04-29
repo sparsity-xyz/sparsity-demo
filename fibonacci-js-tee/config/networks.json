@@ -1,0 +1,17 @@
+{
+    "outpost": {
+        "localhost": {
+            "chain_id": 31337,
+            "http_endpoint": "http://172.17.0.1:8545",
+            "contract": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
+        }
+    },
+    "manager": {
+        "localhost": {
+            "chain_id": 31337,
+            "http_endpoint": "http://172.17.0.1:8545",
+            "ws_endpoint": "ws://172.17.0.1:8545",
+            "contract": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
+        }
+    }
+} 
