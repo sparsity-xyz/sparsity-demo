@@ -90,15 +90,11 @@ function winnerColorIs(squares: any) {
 // my app logic
 export class Application extends BaseApplication {
   // client to room number mapping
-  private clientRooms: Map<Address, Room>
   private room: Room
-  private endblockHeight: number
 
   constructor() {
     super()
-    this.endblockHeight = 1000000
 
-    this.clientRooms = new Map<Address, Room>()
     this.room = {
       roomId: generateUniqueId(),
       state: {
@@ -130,48 +126,19 @@ export class Application extends BaseApplication {
 
       // update server state
       if (requestType === RequestType.New) {
-        let lastRoom = this.room
-        if (Object.keys(lastRoom.state.playerColor).length === 2) {
-          const newRoom = {
-            roomId: generateUniqueId(),
-            state: {
-              step: 0, // Initialize step
-              playerColor: {}, // Initialize color map
-              nextColor: Color.Black, // Set initial next color
-              squares: Array(25).fill(null), // Initialize squares for a 5x5 board
-              winner: null, // Initialize winner
-              ready: false, // Initialize ready state
-            },
-          }
-          this.room = newRoom
-          lastRoom = newRoom
+        
+        if (this.room?.state?.playerColor[address] == null) {
+          this.room.state.playerColor[address] =
+            Object.keys(this.room.state.playerColor).length === 0
+              ? Color.Black
+              : Color.White
         }
 
-        // avoid two players in one room to be same
-        if (this.clientRooms.get(address) === lastRoom) {
-          return
-        }
-
-        this.clientRooms.set(address, lastRoom)
-
-        lastRoom.state.playerColor[address] =
-          Object.keys(lastRoom.state.playerColor).length === 0
-            ? Color.Black
-            : Color.White
-
-        if (Object.keys(lastRoom.state.playerColor).length === 2) {
-          lastRoom.state.ready = true
-          lastRoom.state.nextColor = Color.Black
+        if (Object.keys(this.room.state.playerColor).length === 2) {
+          this.room.state.ready = true
         }
       } else if (requestType === RequestType.Proceed) {
-        // find room
-        const clientRoom = this.clientRooms.get(address)
-        if (clientRoom == null) {
-          console.log(`No room found: `, msg)
-          return
-        }
-
-        const roomState = clientRoom.state
+        const roomState = this.room.state
 
         if (roomState.nextColor !== roomState.playerColor[address]) {
           console.log(`Not the player's turn: `, msg)
@@ -200,14 +167,13 @@ export class Application extends BaseApplication {
       }
 
       // send response
-      const roomInfo = this.clientRooms.get(address)
 
-      console.log('roomInfo', roomInfo)
+      console.log('roomInfo', this.room)
 
       events.push({
         type: '__room__',
         key: msg.address,
-        value: JSON.stringify(roomInfo),
+        value: JSON.stringify(this.room),
       })
 
       // TODO: remove room from server memory if winner exits
