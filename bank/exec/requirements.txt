@@ -1,5 +1,15 @@
-
+uvicorn~=0.34.2
+fastapi~=0.115.12
+requests~=2.32.3
+cbor2~=5.6.5
+pycose~=1.1.0
+cryptography~=44.0.2
+pyOpenSSL~=25.0.0
+dnslib~=0.9.24
+eth-account~=0.11.0
+starlette~=0.46.2
+itsdangerous~=2.2.0
 
 --index-url https://test.pypi.org/simple/
 --extra-index-url https://pypi.org/simple/
-nitro-toolkit==0.0.2
+nitro-toolkit==0.0.3

@@ -1,6 +1,12 @@
 from nitro_toolkit.enclave.base_app import BaseNitroEnclaveApp
-from fastapi import Request
+from fastapi import Request, HTTPException
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
+from eth_account.messages import encode_defunct
+from eth_account import Account
+from starlette.middleware.sessions import SessionMiddleware
+import os
+import secrets
 import logging
 
 logger = logging.getLogger("bank-app")
@@ -8,53 +14,122 @@ logger = logging.getLogger("bank-app")
 class BankApp(BaseNitroEnclaveApp):
     def __init__(self, vsock: bool = False, dns: bool = True):
         super().__init__(vsock=vsock, dns=dns)
-        self.balances = {}
+        # Add CORS and session middleware
+        self.app.add_middleware(
+            CORSMiddleware,
+            allow_origins=["*"],
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
+        self.app.add_middleware(SessionMiddleware, secret_key=os.urandom(24))
+        # In-memory balances for demo
+        self.balances = {
+            "0x6b04692c6ac106b44cb6e2088cf06468fa4c259d": 1000.0
+        }
+
+    def get_current_user(self, request: Request):
+        user = request.session.get("user")
+        return user.lower() if user else None
 
     def init_router(self):
         super().init_router()
+        self.app.add_api_route("/nonce", self.nonce, methods=["GET"])
+        self.app.add_api_route("/login", self.login, methods=["POST"])
+        self.app.add_api_route("/me", self.me, methods=["GET"])
+        self.app.add_api_route("/balance", self.get_balance, methods=["GET"])
         self.app.add_api_route("/deposit", self.deposit, methods=["POST"])
         self.app.add_api_route("/withdraw", self.withdraw, methods=["POST"])
         self.app.add_api_route("/transfer", self.transfer, methods=["POST"])
 
-    async def deposit(self, request: Request):
+    async def nonce(self, request: Request):
+        nonce = secrets.token_hex(16)
+        request.session["nonce"] = nonce
+        return {"nonce": nonce}
+
+    async def login(self, request: Request):
+        # Debug: log cookies and session state
+        logger.info(f"/login cookies: {request.cookies}")
+        logger.info(f"/login session: {request.session.items()}")
         data = await request.json()
         address = data.get("address")
-        amount = data.get("amount")
         signature = data.get("signature")
-        if not address or not amount or not signature:
-            return JSONResponse({"status": "error", "message": "Missing address, amount, or signature"}, status_code=400)
-        # TODO: Verify signature here
-        self.balances[address] = self.balances.get(address, 0) + int(amount)
-        logger.info(f"Deposit: {amount} to {address} (sig={signature})")
-        return JSONResponse({"status": "success", "event": "Deposit", "address": address, "amount": amount})
+        nonce = request.session.get("nonce")
+        logger.info(f"/login address: {address}")
+        logger.info(f"/login signature: {signature}")
+        logger.info(f"/login nonce: {nonce}")
+        if not nonce:
+            return JSONResponse({"success": False, "error": "No nonce in session. Please retry login."}, status_code=400)
+        message = encode_defunct(text=nonce)
+        try:
+            recovered = Account.recover_message(message, signature=signature)
+            logger.info(f"/login recovered: {recovered}")
+            if recovered.lower() == address.lower():
+                request.session["user"] = address
+                request.session.pop("nonce", None)
+                return {"success": True}
+            else:
+                return JSONResponse({"success": False, "error": "Signature mismatch"}, status_code=401)
+        except Exception as e:
+            logger.info(f"/login exception: {e}")
+            return JSONResponse({"success": False, "error": str(e)}, status_code=400)
+
+    async def me(self, request: Request):
+        user = request.session.get("user")
+        if user:
+            return {"address": user}
+        return JSONResponse({"address": None}, status_code=401)
+
+    async def get_balance(self, request: Request):
+        user = self.get_current_user(request)
+        if not user:
+            raise HTTPException(status_code=401, detail="Not authenticated")
+        balance = self.balances.get(user, 0.0)
+        return {"address": user, "balance": balance}
+
+    async def deposit(self, request: Request):
+        user = self.get_current_user(request)
+        if not user:
+            raise HTTPException(status_code=401, detail="Not authenticated")
+        data = await request.json()
+        amount = float(data.get("amount", 0))
+        if amount <= 0:
+            raise HTTPException(status_code=400, detail="Invalid amount")
+        self.balances[user] = self.balances.get(user, 0.0) + amount
+        return {"address": user, "balance": self.balances[user]}
 
     async def withdraw(self, request: Request):
+        user = self.get_current_user(request)
+        if not user:
+            raise HTTPException(status_code=401, detail="Not authenticated")
         data = await request.json()
-        address = data.get("address")
-        amount = data.get("amount")
-        signature = data.get("signature")
-        if not address or not amount or not signature:
-            return JSONResponse({"status": "error", "message": "Missing address, amount, or signature"}, status_code=400)
-        # TODO: Verify signature here
-        if self.balances.get(address, 0) < int(amount):
-            return JSONResponse({"status": "error", "message": "Insufficient balance"}, status_code=400)
-        self.balances[address] -= int(amount)
-        logger.info(f"Withdraw: {amount} from {address} (sig={signature})")
-        return JSONResponse({"status": "success", "event": "Withdraw", "address": address, "amount": amount})
+        amount = float(data.get("amount", 0))
+        if amount <= 0:
+            raise HTTPException(status_code=400, detail="Invalid amount")
+        if self.balances.get(user, 0.0) < amount:
+            raise HTTPException(status_code=400, detail="Insufficient balance")
+        self.balances[user] -= amount
+        return {"address": user, "balance": self.balances[user]}
 
     async def transfer(self, request: Request):
+        user = self.get_current_user(request)
+        if not user:
+            raise HTTPException(status_code=401, detail="Not authenticated")
         data = await request.json()
-        from_address = data.get("from_address")
-        to_address = data.get("to_address")
-        amount = data.get("amount")
-        if not from_address or not to_address or not amount:
-            return JSONResponse({"status": "error", "message": "Missing from_address, to_address, or amount"}, status_code=400)
-        if self.balances.get(from_address, 0) < int(amount):
-            return JSONResponse({"status": "error", "message": "Insufficient balance"}, status_code=400)
-        self.balances[from_address] -= int(amount)
-        self.balances[to_address] = self.balances.get(to_address, 0) + int(amount)
-        logger.info(f"Transfer: {amount} from {from_address} to {to_address}")
-        return JSONResponse({"status": "success", "event": "Transfer", "from_address": from_address, "to_address": to_address, "amount": amount})
+        to_address = data.get("to", "").lower()
+        amount = float(data.get("amount", 0))
+        if not to_address or amount <= 0:
+            raise HTTPException(status_code=400, detail="Invalid parameters")
+        if self.balances.get(user, 0.0) < amount:
+            raise HTTPException(status_code=400, detail="Insufficient balance")
+        self.balances[user] -= amount
+        self.balances[to_address] = self.balances.get(to_address, 0.0) + amount
+        return {
+            "from": user,
+            "to": to_address,
+            "from_balance": self.balances[user],
+            "to_balance": self.balances[to_address]
+        }
 
 if __name__ == "__main__":
     import argparse
