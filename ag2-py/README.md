@@ -134,6 +134,10 @@ Install dependencies:
 npm install
 ```  
 
+```bash
+cp .env.example .env
+```
+
 Create a project in **[Reown](https://reown.com/blog/how-to-get-started-with-appkit)** and update the `.env` file with your `VITE_PROJECT_ID`:  
 
 ```bash
