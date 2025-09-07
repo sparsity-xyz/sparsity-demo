@@ -100,6 +100,7 @@ docker run --rm -ti -e HOST=172.17.0.1 sparsityxyz/bridge:latest
 Pull the **Fleet** image:  
 
 ```bash
+docker pull sparsityxyz/fleet-er:latest
 docker pull sparsityxyz/fleet:latest
 ```  
 
