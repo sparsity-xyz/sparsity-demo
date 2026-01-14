@@ -12,9 +12,9 @@ interface APPInterface {
     // outpost will call the function when the session create success
     function callbackSession(uint256 sessionId, CallbackSession memory session) external; 
     // outpost will call the function when the session end
-    function callbackSettlement(uint256 sessionId, bool isRevert, bytes memory data) external;
+    function callbackSettlement(uint256 sessionId, bool isRevert, bool isSlash, bytes memory data) external;
     // outpost will call the function to check if the account is join the session
-    function checkAuth(uint256 sessionId, address account) external view returns (bool);
+    function checkAuth(uint256 sessionId, address account) external view returns (bool, bytes memory);
 }
 
 contract APP is APPInterface {
@@ -34,6 +34,7 @@ contract APP is APPInterface {
     mapping(address => uint256) public playerRoom;
     // The current latest room ID
     uint256 public currentRoomId;
+    mapping(address => bytes) public playerPubKey;
 
     OutpostInterface public _outpostContract;
     CallbackSession[] public _sessions;
@@ -47,7 +48,7 @@ contract APP is APPInterface {
      * @dev Join an existing room or create a new room
      * @return Returns the room ID
      */
-    function joinOrCreateRoom() public returns (uint256) {
+    function joinOrCreateRoom(bytes memory pubKey) public returns (uint256) {
         require(playerRoom[msg.sender] == 0, "Player already in a room");
 
         if (currentRoomId > 0 && 
@@ -55,6 +56,7 @@ contract APP is APPInterface {
             rooms[currentRoomId].player2 == address(0)) {
             rooms[currentRoomId].player2 = msg.sender;
             playerRoom[msg.sender] = currentRoomId;
+            playerPubKey[msg.sender] = pubKey;
 
             return currentRoomId;
         }
@@ -71,8 +73,9 @@ contract APP is APPInterface {
         });
         rooms[currentRoomId] = room;
         playerRoom[msg.sender] = currentRoomId;
+        playerPubKey[msg.sender] = pubKey;
         
-        _sessions.push(CallbackSession("", address(0), SessionStatus.Init));
+        _sessions.push();
         // call outpost contract to create a new session
         _outpostContract.newSession(currentRoomId, abi.encode(room));
 
@@ -105,25 +108,36 @@ contract APP is APPInterface {
         return rooms[roomId];
     }
 
+    function updatePubKey(bytes memory pubKey) public {
+        playerPubKey[msg.sender] = pubKey;
+    }
+
     /**
      * @dev Outpost callback function: session creation completed
      */
     function callbackSession(uint256 sessionId, CallbackSession memory session) public {
         require(msg.sender == address(_outpostContract), "Only outpost contract can call this function");
         // the sessionId starts from 1
-        _sessions[sessionId-1] = session;
+        _sessions[sessionId-1].status = session.status;
+        for (uint i = 0; i < session.nodes.length; i++) {
+            _sessions[sessionId-1].nodes.push(session.nodes[i]);
+        }
     }
 
     /**
      * @dev Outpost callback function: session settlement
      */
-    function callbackSettlement(uint256 sessionId, bool isRevert, bytes memory data) public {
+    function callbackSettlement(uint256 sessionId, bool isRevert, bool slash, bytes memory data) public {
         require(msg.sender == address(_outpostContract), "Only outpost contract can call this function");
         uint256 roomId = sessionId;
 
         if (isRevert) {
             // the sessionId starts from 1
             _sessions[sessionId-1].status = SessionStatus.Revert;
+        }
+        if (slash) {
+            // the sessionId starts from 1
+            _sessions[sessionId-1].status = SessionStatus.Slash;
         } else {
             // the sessionId starts from 1
             _sessions[sessionId-1].status = SessionStatus.Finished;
@@ -141,7 +155,7 @@ contract APP is APPInterface {
     }
 
     // check if the account is in the room
-    function checkAuth(uint256 sessionId, address account) public view returns (bool) {
-        return rooms[sessionId].player1 == account || rooms[sessionId].player2 == account;
+    function checkAuth(uint256 sessionId, address account) public view returns (bool, bytes memory) {
+        return (rooms[sessionId].player1 == account || rooms[sessionId].player2 == account, playerPubKey[account]);
     }
 }

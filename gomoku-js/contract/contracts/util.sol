@@ -3,9 +3,16 @@ pragma solidity ^0.8.27;
 
 
 struct CallbackSession {
-    string endpoint;
-    address publicKey;
+    Node[] nodes;
     SessionStatus status;
+}
+
+struct Node {
+    string endpoint;
+    address pubKeyAddress;
+    bytes result;
+    bool isRevert;
+    bool settled;
 }
 
 enum SessionStatus {
@@ -13,5 +20,6 @@ enum SessionStatus {
     Pending,
     Running,
     Finished,
-    Revert
+    Revert,
+    Slash
 }

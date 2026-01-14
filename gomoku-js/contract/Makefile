@@ -37,7 +37,7 @@ send-settle-eth:
 
 ## app
 register-app:
-	cast send ${OUTPOST_PROXY_CONTRACT} --private-key ${PROXY_ADMIN_PRIVATE_KEY} "registerAPP(address,string,string)" ${APP_CONTRACT} ${APP_NAME} ${DOCKER_URI} ${DOCKER_HASH}
+	cast send ${OUTPOST_PROXY_CONTRACT} --private-key ${PROXY_ADMIN_PRIVATE_KEY} "registerAPP(address,uint,string,string)" ${APP_CONTRACT} 2 ${DOCKER_URI} ${DOCKER_HASH}
 
 
 ## sparsity
@@ -48,4 +48,4 @@ set-outpost-bridge:
 	cast send ${OUTPOST_PROXY_CONTRACT} --private-key ${CONTRACT_OWNER_PRIVATE_KEY} "setBridge(address,bool)" 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC true
 
 set-manager-bridge:
-	cast send ${MANAGER_PROXY_CONTRACT} --private-key ${CONTRACT_OWNER_PRIVATE_KEY} "setBridge(address,bool)" 0x90F79bf6EB2c4f870365E785982E1f101E93b906 true
+	cast send ${MANAGER_PROXY_CONTRACT} --private-key ${CONTRACT_OWNER_PRIVATE_KEY} "setBridge(uint256,address,bool)" $(shell cast chain-id) 0x90F79bf6EB2c4f870365E785982E1f101E93b906 true

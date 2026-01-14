@@ -8,34 +8,39 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 struct RegisterSession {
     string endpoint;
-    address publicKey;
+    address pubKeyAddress;
+    bytes validatorPubKey;
+    string nodeId;
 }
 
 struct ERSession {
     string endpoint;
-    address publicKey;
-    SessionStatus status;
+    address pubKeyAddress;
+    bytes validatorPubKey;
+    string nodeId;
     string dockerURI;
     string dockerHash;
     bytes initialData;
+    SessionStatus status;
 }
 
 
 contract Manager is Initializable, OwnableUpgradeable {
     mapping(string => bool) public _erRegistered;
     ERSession[] public _erSessions;
-    mapping(address => mapping(uint256 => ERSession[])) public _appSessionBinding;
-    mapping(address => mapping(uint256 => bool)) public _appSessionDone;
-    mapping(address => bool) public bridgeAddress;
+    mapping(uint256 => mapping(address => mapping(uint256 => ERSession[]))) public _appSessionBinding;  // chain_id => app_address => session_id => sessions
+    mapping(uint256 => mapping(address => mapping(uint256 => bool))) public _appSessionDone;  // chain_id => app_address => session_id => done
+    mapping(uint256 => mapping(address => bool)) public bridgeAddress;  // chain_id => address => bool
 
-    event NewSession(address indexed appAddress, uint256 indexed sessionId, ERSession[] session);
+    event NewSession(uint256 indexed chainId, address indexed appAddress, uint256 indexed sessionId, ERSession[] session);
+    event BridgeStatusChanged(uint256 indexed chainId, address indexed bridge, bool status);
 
     function initialize(address _owner) public initializer {
         __Ownable_init(_owner);
     }
 
-    modifier onlyBridge() {
-        require(bridgeAddress[msg.sender], "not allowed");
+    modifier onlyBridge(uint256 chainId) {
+        require(bridgeAddress[chainId][msg.sender], "not allowed");
         _;
     }
 
@@ -49,11 +54,13 @@ contract Manager is Initializable, OwnableUpgradeable {
         // todo: staking
         ERSession memory newAppSession = ERSession(
             session.endpoint,
-            session.publicKey,
-            SessionStatus.Init,
+            session.pubKeyAddress,
+            session.validatorPubKey,
+            session.nodeId,
             "",
             "",
-            new bytes(0)
+            new bytes(0),
+            SessionStatus.Init
         );
         _erSessions.push(newAppSession);
         _erRegistered[session.endpoint] = true;
@@ -69,8 +76,10 @@ contract Manager is Initializable, OwnableUpgradeable {
         return _erRegistered[endpoint];
     }
 
-    function unregisterSession() public {
-        // TODO
+    function unregisterSession(string[] memory endpoints) public onlyOwner {
+        for (uint i = 0; i < endpoints.length; i++) {
+            delete _erRegistered[endpoints[i]];
+        }
     }
 
     function clear() public onlyOwner {
@@ -80,44 +89,44 @@ contract Manager is Initializable, OwnableUpgradeable {
         delete _erSessions;
     }
 
-    function setBridge(address bridge, bool status) public onlyOwner {
-        bridgeAddress[bridge] = status;
+    function setBridge(uint256 chainId, address bridge, bool status) public onlyOwner {
+        bridgeAddress[chainId][bridge] = status;
+        emit BridgeStatusChanged(chainId, bridge, status);
     }
 
-    // brige call
-    function newSession(address appAddress, uint256 sessionId, string memory dockerURI, string memory dockerHash, bytes memory initialData) public onlyBridge {
-        uint256 amount = 1;
-        require(amount < 10 && _erSessions.length >= amount, "Amount must be less than 1");
-        require(_appSessionBinding[appAddress][sessionId].length == 0, "Session already exists");
+    // bridge call
+    function newSession(uint256 chainId, address appAddress, uint256 sessionId, uint count, string memory dockerURI, string memory dockerHash, bytes memory initialData) public onlyBridge(chainId) {
+        require(count < 10 && _erSessions.length >= count, "Amount must be less than 1");
+        require(_appSessionBinding[chainId][appAddress][sessionId].length == 0, "Session already exists");
 
-        ERSession[] memory selectedSession = _getRandomSession(amount);
+        ERSession[] memory selectedSession = _getRandomSession(count);
         for (uint i = 0; i < selectedSession.length; i++) {
             selectedSession[i].dockerURI = dockerURI;
             selectedSession[i].dockerHash = dockerHash;
             selectedSession[i].initialData = initialData;
-            _appSessionBinding[appAddress][sessionId].push(selectedSession[i]);
+            _appSessionBinding[chainId][appAddress][sessionId].push(selectedSession[i]);
         }
-        emit NewSession(appAddress, sessionId, selectedSession);
+        emit NewSession(chainId, appAddress, sessionId, selectedSession);
     }
 
     function availableER() public view returns (uint) {
         return _erSessions.length;
     }
 
-    function releaseER(address appAddress, uint256 sessionId) public onlyBridge {
-        require(_appSessionDone[appAddress][sessionId] == false, "Session already gone");
+    function releaseER(uint256 chainId, address appAddress, uint256 sessionId) public onlyBridge(chainId) {
+        require(_appSessionDone[chainId][appAddress][sessionId] == false, "Session already gone");
         for (
             uint i = 0;
-            i < _appSessionBinding[appAddress][sessionId].length;
+            i < _appSessionBinding[chainId][appAddress][sessionId].length;
             i++
         ) {
-            _erSessions.push(_appSessionBinding[appAddress][sessionId][i]);
+            _erSessions.push(_appSessionBinding[chainId][appAddress][sessionId][i]);
         }
-        _appSessionDone[appAddress][sessionId] = true;
+        _appSessionDone[chainId][appAddress][sessionId] = true;
     }
 
-    function getSessionBinding(address appAddress, uint256 sessionId) public view returns (ERSession[] memory) {
-        return _appSessionBinding[appAddress][sessionId];
+    function getSessionBinding(uint256 chainId, address appAddress, uint256 sessionId) public view returns (ERSession[] memory) {
+        return _appSessionBinding[chainId][appAddress][sessionId];
     }
 
     // TODO: avoid the same session on same fleet
